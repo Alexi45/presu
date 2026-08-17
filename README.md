@@ -151,10 +151,14 @@ inmutable para los assets con hash:
   configurar a mano.
 - **Netlify**: `netlify.toml`.
 
-Define la variable de entorno **`SITE_URL`** con tu dominio (por ejemplo
-`https://presu.app`). El generador la usa para las URLs canónicas, el sitemap,
-las etiquetas Open Graph y los datos estructurados. Si no la defines, todo
-apunta a `https://presu.app`, que probablemente no sea tuyo.
+**El dominio se detecta solo en Netlify y en Vercel**: el generador lee la
+variable `URL` que Netlify inyecta en cada build, o
+`VERCEL_PROJECT_PRODUCTION_URL` en Vercel. No hay que configurar nada.
+
+Puedes forzarlo con **`SITE_URL`** si lo necesitas (por ejemplo para un dominio
+propio que todavía no es el principal en Netlify). Compilando en local sin
+ninguna de las dos, el script avisa por consola y usa un dominio de ejemplo: ese
+build no se publica.
 
 ```bash
 SITE_URL=https://tudominio.com npm run build

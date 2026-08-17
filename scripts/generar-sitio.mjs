@@ -22,7 +22,32 @@ const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = join(RAIZ, "dist");
 const TEMPORAL = join(RAIZ, "node_modules", ".presu-contenido");
 
-const SITIO = (process.env.SITE_URL ?? "https://presu.app").replace(/\/$/, "");
+/**
+ * Dominio del sitio, por orden de preferencia:
+ *
+ *   1. SITE_URL, si alguien la define a mano.
+ *   2. URL, que Netlify inyecta sola en cada build con la dirección real del
+ *      sitio. Sin esto, un despliegue automático desde GitHub sin variables
+ *      generaba todas las canónicas y el sitemap apuntando al dominio de
+ *      ejemplo, y Google se negaba a indexar. Pasó de verdad.
+ *   3. VERCEL_PROJECT_PRODUCTION_URL, el equivalente en Vercel (sin protocolo).
+ *   4. El valor de ejemplo, solo para compilar en local.
+ */
+function resolverSitio() {
+  if (process.env.SITE_URL) return process.env.SITE_URL;
+  if (process.env.URL) return process.env.URL;
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  console.warn(
+    "\n  AVISO: no hay SITE_URL ni URL en el entorno.\n" +
+      "  Las canónicas y el sitemap se generan con el dominio de ejemplo.\n" +
+      "  No publiques este build.\n",
+  );
+  return "https://presu.app";
+}
+
+const SITIO = resolverSitio().replace(/\/$/, "");
 
 /** Los módulos de contenido son TypeScript; se compilan a un temporal para poder importarlos. */
 async function cargarContenido() {
