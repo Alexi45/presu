@@ -21,8 +21,23 @@ export const DURACION_SUSCRIPCION = 35 * 24 * 60 * 60 * 1000;
 /** El pago único no caduca en la práctica, pero el testigo sí, por higiene. */
 export const DURACION_UNICO = 5 * 365 * 24 * 60 * 60 * 1000;
 
+/**
+ * Qué variables de entorno faltan. Devuelve solo los NOMBRES, nunca los
+ * valores: sirve para diagnosticar sin filtrar nada.
+ *
+ * Un simple «no está configurado» dejaba sin pistas: en Netlify lo habitual no
+ * es olvidarse de la variable, sino crearla con el ámbito limitado a «Builds»,
+ * con lo que las funciones no la ven aunque en el panel aparezca puesta.
+ */
+export function loQueFalta() {
+  const faltan = [];
+  if (!process.env.STRIPE_SECRET_KEY) faltan.push("STRIPE_SECRET_KEY");
+  if (!SECRETO) faltan.push("LICENCIA_SECRET");
+  return faltan;
+}
+
 export function hayConfiguracion() {
-  return Boolean(SECRETO && process.env.STRIPE_SECRET_KEY);
+  return loQueFalta().length === 0;
 }
 
 function base64url(buffer) {

@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { hayConfiguracion } from "./_licencia.mjs";
+import { loQueFalta } from "./_licencia.mjs";
 import { ErrorValidacion, leerCuerpo } from "./_validar.mjs";
 
 /**
@@ -41,8 +41,18 @@ export default async (peticion) => {
   if (peticion.method !== "POST") {
     return Response.json({ error: "Método no permitido" }, { status: 405 });
   }
-  if (!hayConfiguracion()) {
-    return Response.json({ error: "El cobro no está configurado" }, { status: 503 });
+  const faltan = loQueFalta();
+  if (faltan.length > 0) {
+    return Response.json(
+      {
+        error: "El cobro no está configurado todavía",
+        faltan,
+        ayuda:
+          "Defínelas en Netlify (Site configuration > Environment variables) con el " +
+          "ámbito «Functions» marcado y vuelve a desplegar.",
+      },
+      { status: 503 },
+    );
   }
 
   try {
