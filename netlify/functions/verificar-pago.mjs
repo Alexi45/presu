@@ -28,6 +28,9 @@ function licenciaDeSesion(sesion) {
     return {
       plan,
       sub: typeof suscripcion === "string" ? suscripcion : suscripcion.id,
+      // El cliente de Stripe se guarda para poder abrirle el portal de
+      // facturación, donde cancela y ve sus recibos sin escribirte a ti.
+      cus: typeof sesion.customer === "string" ? sesion.customer : (sesion.customer?.id ?? ""),
       exp: Date.now() + DURACION_SUSCRIPCION,
     };
   }
@@ -66,6 +69,7 @@ export default async (peticion) => {
         licencia: firmar({
           plan: "suscripcion",
           sub: anterior.sub,
+          cus: anterior.cus ?? "",
           exp: Date.now() + DURACION_SUSCRIPCION,
         }),
       });

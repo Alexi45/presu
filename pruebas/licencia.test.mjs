@@ -18,6 +18,7 @@ process.env.URL = "https://ejemplo.test";
 const { firmar, verificar } = await import("../netlify/functions/_licencia.mjs");
 const { validarPresupuesto } = await import("../netlify/functions/_validar.mjs");
 const generarPdf = (await import("../netlify/functions/generar-pdf.mjs")).default;
+const portalCliente = (await import("../netlify/functions/portal-cliente.mjs")).default;
 
 const PRESUPUESTO = {
   id: "presupuesto-A",
@@ -158,5 +159,35 @@ describe("validación de lo que llega del navegador", () => {
     assert.equal(limpio.descuento, 100);
     assert.ok(Number.isFinite(limpio.lineas[0].precio));
     assert.ok(Number.isFinite(limpio.lineas[0].cantidad));
+  });
+});
+
+describe("portal de facturación", () => {
+  const pedirPortal = (cuerpo) =>
+    portalCliente(
+      new Request("https://ejemplo.test/.netlify/functions/portal-cliente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cuerpo),
+      }),
+    );
+
+  it("no lo abre sin licencia", async () => {
+    assert.equal((await pedirPortal({})).status, 401);
+  });
+
+  it("no lo abre con una licencia de pago único", async () => {
+    const licencia = firmar({ plan: "unico", presupuestoId: "A", exp: dentroDeUnRato() });
+    assert.equal((await pedirPortal({ licencia })).status, 401);
+  });
+
+  it("no lo abre si la licencia no trae cliente de Stripe", async () => {
+    const licencia = firmar({ plan: "suscripcion", sub: "sub_1", exp: dentroDeUnRato() });
+    assert.equal((await pedirPortal({ licencia })).status, 401);
+  });
+
+  it("rechaza otros métodos", async () => {
+    const r = await portalCliente(new Request("https://ejemplo.test/x", { method: "GET" }));
+    assert.equal(r.status, 405);
   });
 });

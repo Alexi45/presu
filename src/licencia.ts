@@ -25,6 +25,8 @@ export interface Licencia {
   plan: Plan;
   /** Solo en el pago único: el presupuesto al que da derecho. */
   presupuestoId?: string;
+  /** Solo en la suscripción: el cliente de Stripe, para abrirle su portal. */
+  cus?: string;
   exp: number;
 }
 
@@ -119,6 +121,17 @@ export async function renovarSuscripcion(licencia: Licencia): Promise<Licencia |
     renovar: licencia.testigo,
   });
   return guardar(respuesta.licencia);
+}
+
+/**
+ * Lleva al portal de Stripe, donde el usuario cancela, cambia de tarjeta y se
+ * descarga sus facturas sin que tengas que atenderle tú.
+ */
+export async function abrirPortal(licencia: Licencia): Promise<void> {
+  const { url } = await pedir<{ url: string }>("portal-cliente", {
+    licencia: licencia.testigo,
+  });
+  window.location.href = url;
 }
 
 export interface MedidasLogo {

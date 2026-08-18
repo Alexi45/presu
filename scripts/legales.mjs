@@ -127,7 +127,7 @@ export const LEGALES = [
 <h2>Derecho de desistimiento</h2>
 <p>De acuerdo con el artículo 103.m) del texto refundido de la Ley General para la Defensa de los Consumidores y Usuarios, el derecho de desistimiento no resulta aplicable al suministro de contenido digital que no se preste en soporte material cuando la ejecución haya comenzado con el consentimiento previo y expreso del consumidor y con su conocimiento de que pierde por ello el derecho de desistimiento.</p>
 <p>Al completar el pago, el usuario solicita expresamente la ejecución inmediata y reconoce que, una vez activada la descarga sin marca de agua, pierde el derecho de desistimiento sobre el pago único.</p>
-<p>En el caso de la suscripción mensual, el usuario puede cancelarla en cualquier momento con efectos al final del periodo ya facturado, sin penalización. Los periodos ya consumidos no son reembolsables. La cancelación se solicita escribiendo a la dirección de contacto indicada más abajo.</p>
+<p>En el caso de la suscripción mensual, el usuario puede cancelarla en cualquier momento con efectos al final del periodo ya facturado, sin penalización. Los periodos ya consumidos no son reembolsables. La baja se hace desde el propio sitio, en el enlace «Gestionar o cancelar la suscripción», que abre el portal de facturación donde además pueden consultarse y descargarse los recibos. No hace falta escribir ni llamar a nadie.</p>
 
 <h2>Si algo no funciona</h2>
 <p>Si el producto contratado no se activa o el PDF no se genera correctamente, escribe a ${TITULAR.email} describiendo el problema. Si no puede resolverse, se devolverá el importe íntegro.</p>

@@ -12,6 +12,16 @@ import { ErrorValidacion, leerCuerpo } from "./_validar.mjs";
  * presupuesto concreto.
  */
 
+/**
+ * Lo que ve el cliente en el extracto del banco.
+ *
+ * La primera causa de disputas de tarjeta en productos baratos es que el
+ * comprador no reconoce el cargo. Cada disputa cuesta 15 € además del importe,
+ * o sea el doble de lo que vale el producto. El prefijo lo pone la cuenta de
+ * Stripe; esto es el sufijo que identifica la app concreta.
+ */
+const DESCRIPTOR = "PRESU";
+
 const PLANES = {
   unico: {
     modo: "payment",
@@ -60,6 +70,9 @@ export default async (peticion) => {
       ],
       locale: "es",
       metadata: { presupuestoId: String(presupuestoId ?? "").slice(0, 60), plan },
+      ...(elegido.modo === "payment"
+        ? { payment_intent_data: { statement_descriptor_suffix: DESCRIPTOR } }
+        : {}),
       custom_text: {
         submit: {
           message:
@@ -69,6 +82,10 @@ export default async (peticion) => {
       },
       success_url: `${sitio}/?sesion={CHECKOUT_SESSION_ID}`,
       cancel_url: `${sitio}/?pago=cancelado`,
+    }, {
+      // Si el usuario pulsa dos veces o se le va la conexión, no se crean dos
+      // sesiones de pago para el mismo presupuesto en el mismo minuto.
+      idempotencyKey: `${plan}-${presupuestoId}-${Math.floor(Date.now() / 60000)}`,
     });
 
     return Response.json({ url: sesion.url });

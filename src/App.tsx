@@ -413,6 +413,7 @@ export default function App() {
           <Descarga
             pagado={pagado}
             plan={licencia?.plan ?? null}
+            licencia={licencia}
             presupuestoId={presupuesto.id}
             generando={generando}
             error={error}

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { SITIO } from "../contenido";
-import { iniciarPago } from "../licencia";
-import type { Plan } from "../licencia";
+import { abrirPortal, iniciarPago } from "../licencia";
+import type { Licencia, Plan } from "../licencia";
 
 interface DescargaProps {
   /** ¿Está pagado este presupuesto concreto? */
   pagado: boolean;
   plan: Plan | null;
+  licencia: Licencia | null;
   presupuestoId: string;
   generando: boolean;
   error: string | null;
@@ -18,6 +19,7 @@ interface DescargaProps {
 export function Descarga({
   pagado,
   plan,
+  licencia,
   presupuestoId,
   generando,
   error,
@@ -70,6 +72,22 @@ export function Descarga({
         </button>
         {botonCompartir}
         {error && <div className="aviso aviso--error">{error}</div>}
+
+        {plan === "suscripcion" && licencia && (
+          <button
+            type="button"
+            className="boton boton--texto"
+            style={{ marginTop: 10, padding: 0 }}
+            onClick={() => {
+              abrirPortal(licencia).catch((e) =>
+                setErrorPago(e instanceof Error ? e.message : "No se ha podido abrir la gestión."),
+              );
+            }}
+          >
+            Gestionar o cancelar la suscripción
+          </button>
+        )}
+        {errorPago && <div className="aviso aviso--error">{errorPago}</div>}
       </div>
     );
   }
