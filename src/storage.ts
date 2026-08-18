@@ -26,11 +26,17 @@ function leer<T>(clave: string, porDefecto: T): T {
   }
 }
 
-function escribir(clave: string, valor: unknown): void {
+/**
+ * Devuelve si se ha podido guardar. Antes se tragaba el error y el usuario
+ * seguía escribiendo sin saber que no se estaba guardando nada: perdía el
+ * trabajo al recargar y no había forma de que lo supiera.
+ */
+function escribir(clave: string, valor: unknown): boolean {
   try {
     localStorage.setItem(clave, JSON.stringify(valor));
+    return true;
   } catch {
-    // Cuota llena o navegación privada: no es motivo para romper la edición.
+    return false;
   }
 }
 
@@ -79,7 +85,7 @@ export function cargarDocumentos(): Presupuesto[] {
   return documentos.sort((a, b) => b.actualizado - a.actualizado);
 }
 
-export function guardarDocumento(presupuesto: Presupuesto): void {
+export function guardarDocumento(presupuesto: Presupuesto): boolean {
   const documentos = leer<Partial<Presupuesto>[]>(CLAVE_DOCUMENTOS, []).map(normalizar);
   const indice = documentos.findIndex((d) => d.id === presupuesto.id);
   if (indice >= 0) documentos[indice] = presupuesto;
@@ -89,8 +95,9 @@ export function guardarDocumento(presupuesto: Presupuesto): void {
     .sort((a, b) => b.actualizado - a.actualizado)
     .slice(0, LIMITE);
 
-  escribir(CLAVE_DOCUMENTOS, recortados);
+  const guardado = escribir(CLAVE_DOCUMENTOS, recortados);
   escribir(CLAVE_ACTUAL, presupuesto.id);
+  return guardado;
 }
 
 export function borrarDocumento(id: string): void {

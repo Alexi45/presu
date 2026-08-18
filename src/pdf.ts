@@ -108,11 +108,29 @@ function medirImagen(dataUrl: string): Promise<{ ancho: number; alto: number }> 
   });
 }
 
+/**
+ * Vale `true` solo en la compilación que usa la función serverless.
+ *
+ * En la del navegador vale `false`, y con eso el empaquetador elimina por
+ * completo la rama que genera el PDF sin marca de agua: no es que esté
+ * protegida, es que ese código no llega al cliente. Sin esto, cualquiera podía
+ * descargar el bundle, cambiar una condición y saltarse el pago sin tocar el
+ * servidor.
+ */
+declare const __PDF_SERVIDOR__: boolean;
+
 export interface OpcionesPdf {
   /** Sin pagar, el PDF sale con marca de agua. */
   conMarcaDeAgua: boolean;
   /** Dominio que se imprime en el pie de la versión gratuita. */
   dominio?: string;
+  /**
+   * Tamaño real del logotipo. En el navegador se mide solo; en el servidor no
+   * existe `Image`, así que lo manda medido el cliente. Este módulo es el mismo
+   * en los dos sitios: si hubiera dos generadores, el PDF de pago y el gratuito
+   * acabarían siendo documentos distintos.
+   */
+  logoMedidas?: { ancho: number; alto: number };
 }
 
 export async function generarPdf(
@@ -125,6 +143,7 @@ export async function generarPdf(
   const totales = calcular(p);
   const rotulo: RGB = estilo.rotulosEnColor ? acento : GRIS;
   const dominio = opciones.dominio ?? "presu.app";
+  const conMarcaDeAgua = __PDF_SERVIDOR__ ? opciones.conMarcaDeAgua : true;
 
   let y = 0;
 
@@ -177,7 +196,7 @@ export async function generarPdf(
 
   if (p.emisor.logo) {
     try {
-      const { ancho, alto } = await medirImagen(p.emisor.logo);
+      const { ancho, alto } = opciones.logoMedidas ?? (await medirImagen(p.emisor.logo));
       const escala = Math.min(55 / ancho, 18 / alto);
       doc.addImage(p.emisor.logo, MARGEN, y - 6, ancho * escala, alto * escala);
       y += alto * escala - 6;
@@ -495,7 +514,7 @@ export async function generarPdf(
     );
     texto(`${pagina} / ${paginas}`, DERECHA, ALTO - 11, { size: 7.5, color: GRIS, align: "right" });
 
-    if (opciones.conMarcaDeAgua) {
+    if (conMarcaDeAgua) {
       doc.setFont(estilo.fuente, "bold");
       doc.setFontSize(46);
       doc.setTextColor(LINEA[0], LINEA[1], LINEA[2]);
@@ -514,14 +533,4 @@ export async function generarPdf(
   return doc;
 }
 
-const DIACRITICOS = new RegExp("[\\u0300-\\u036f]", "g");
-
-export function nombreArchivo(p: Presupuesto): string {
-  const cliente = (p.cliente.nombre || "cliente")
-    .normalize("NFD")
-    .replace(DIACRITICOS, "")
-    .replace(/[^a-zA-Z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .toLowerCase();
-  return `presupuesto-${p.numero}-${cliente}.pdf`;
-}
+export { nombreArchivo } from "./nombres";

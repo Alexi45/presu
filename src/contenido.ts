@@ -15,7 +15,7 @@ export const SITIO = {
   descripcion:
     "Crea presupuestos profesionales en PDF en dos minutos. Con IVA desglosado, retención de IRPF y tu logotipo. Sin registro.",
   precioUnico: 7,
-  precioSuscripcion: 9,
+  precioSuscripcion: 19,
 };
 
 export const PASOS = [
@@ -73,7 +73,7 @@ export const FAQ = [
   {
     pregunta: "¿Es gratis?",
     respuesta:
-      "Crear el presupuesto, calcularlo y verlo terminado es gratis y sin límite. El PDF también se descarga gratis, pero sale con una marca de agua. Quitarla cuesta 7 € en un pago único, sin suscripción y sin crear cuenta.",
+      "Crear el presupuesto, calcularlo y verlo terminado es gratis y sin límite. El PDF también se descarga gratis, pero sale con una marca de agua. Quitarla en un presupuesto concreto cuesta 7 € en un pago único, y no hace falta crear cuenta. Si mandas varios al mes, hay una suscripción de 19 €/mes que los cubre todos.",
   },
   {
     pregunta: "¿Hay que registrarse?",
@@ -83,7 +83,7 @@ export const FAQ = [
   {
     pregunta: "¿Dónde se guardan mis presupuestos?",
     respuesta:
-      "En tu propio navegador, no en ningún servidor. Eso significa que nadie más puede verlos, y también que si borras los datos de navegación o cambias de dispositivo se pierden. Descarga el PDF de lo que quieras conservar.",
+      "En tu propio navegador, no en ningún servidor. Eso significa que nadie más puede verlos, y también que si borras los datos de navegación o cambias de dispositivo se pierden. Descarga el PDF de lo que quieras conservar, o guarda una copia de seguridad desde «Mis presupuestos». La única excepción es la descarga de pago: para generarla sin marca de agua, el presupuesto viaja a nuestro servidor, que lo usa para crear el PDF y no lo almacena.",
   },
   {
     pregunta: "¿Un presupuesto es lo mismo que una factura?",

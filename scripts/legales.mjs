@@ -2,7 +2,8 @@
  * Textos legales de partida.
  *
  * Son plantillas redactadas para el caso concreto de Presu (producto digital,
- * sin registro, sin datos en servidor, cobro por Stripe). Los datos fiscales
+ * sin registro, con los datos en el navegador salvo la descarga de pago, y
+ * cobro por Stripe). Los datos fiscales
  * del titular están marcados con la clase `hueco` para que no se olvide
  * rellenarlos: publicar esto con los huecos puestos es peor que no publicarlo.
  *
@@ -64,7 +65,7 @@ export const LEGALES = [
     descripcion:
       "Qué datos trata Presu, dónde se guardan los presupuestos y cuáles son tus derechos.",
     cuerpo: `
-<p>Esta política explica cómo se tratan los datos personales en Presu. La versión corta: <strong>los presupuestos que elaboras no salen de tu navegador</strong>.</p>
+<p>Esta política explica cómo se tratan los datos personales en Presu. La versión corta: <strong>los presupuestos que elaboras no salen de tu navegador, salvo cuando compras la descarga sin marca de agua</strong>, que se genera en nuestro servidor y para eso necesita el contenido del documento.</p>
 
 <h2>Responsable del tratamiento</h2>
 <ul>
@@ -76,13 +77,14 @@ export const LEGALES = [
 
 <h2>Datos de los presupuestos</h2>
 <p>Los datos que introduces al elaborar un presupuesto —los tuyos, los de tu cliente, los conceptos y los importes— se guardan exclusivamente en el almacenamiento local de tu navegador. No se envían a ningún servidor, no se almacenan en ninguna base de datos y el titular de este sitio no tiene acceso a ellos ni posibilidad de recuperarlos.</p>
+<p><strong>Hay una única excepción, y conviene que la conozcas:</strong> cuando descargas un presupuesto sin marca de agua, el contenido de ese presupuesto se envía a nuestro servidor, que lo utiliza para componer el PDF y te lo devuelve. Es necesario porque la versión sin marca solo se genera en el servidor; es lo que impide obtenerla sin pagar. Ese contenido se emplea únicamente para generar el archivo de esa petición y no se guarda en ninguna base de datos ni registro. La descarga gratuita con marca de agua se genera íntegramente en tu navegador y no envía nada.</p>
 <p>Esto tiene una consecuencia importante para ti: si borras los datos de navegación, usas el modo privado o cambias de dispositivo, esos presupuestos se pierden y no pueden restaurarse. Descarga en PDF los que quieras conservar.</p>
 <p>Si en tus presupuestos incluyes datos personales de tus clientes, el responsable de ese tratamiento eres tú, no este sitio.</p>
 
 <h2>Datos de pago</h2>
 <p>Los pagos se procesan íntegramente a través de <strong>Stripe Payments Europe, Ltd.</strong>, que actúa como responsable independiente del tratamiento de los datos de pago. Este sitio no recibe, no ve y no almacena los datos de tu tarjeta. Stripe trata los datos necesarios para ejecutar el cobro y para el cumplimiento de sus obligaciones legales, conforme a su propia política de privacidad.</p>
 <ul>
-  <li><strong>Finalidad:</strong> gestionar el cobro del producto contratado y emitir el justificante correspondiente.</li>
+  <li><strong>Finalidad:</strong> gestionar el cobro del producto contratado, emitir el justificante correspondiente y generar el documento adquirido.</li>
   <li><strong>Base jurídica:</strong> la ejecución del contrato en el que eres parte (art. 6.1.b RGPD) y el cumplimiento de obligaciones legales fiscales y contables (art. 6.1.c RGPD).</li>
   <li><strong>Conservación:</strong> los justificantes de las operaciones se conservan durante los plazos exigidos por la normativa mercantil y fiscal.</li>
 </ul>
@@ -92,7 +94,7 @@ export const LEGALES = [
 <p>Las tipografías se cargan desde Google Fonts, lo que implica que tu navegador realiza una petición a servidores de Google y que este puede tratar tu dirección IP conforme a sus propias políticas.</p>
 
 <h2>Destinatarios</h2>
-<p>No se ceden datos a terceros salvo a los proveedores necesarios para prestar el servicio: el proveedor de alojamiento del sitio web y Stripe como procesador de pagos. No se realizan transferencias internacionales al margen de las que dichos proveedores efectúen bajo las garantías previstas en el RGPD.</p>
+<p>No se ceden datos a terceros salvo a los proveedores necesarios para prestar el servicio: el proveedor de alojamiento del sitio web y de las funciones que generan el PDF de pago, y Stripe como procesador de pagos. No se realizan transferencias internacionales al margen de las que dichos proveedores efectúen bajo las garantías previstas en el RGPD.</p>
 
 <h2>Tus derechos</h2>
 <p>Puedes ejercer los derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad escribiendo a ${TITULAR.email}. Ten en cuenta que, respecto de los presupuestos guardados en tu navegador, el ejercicio del derecho de supresión está enteramente en tu mano: basta con borrarlos desde la propia herramienta o limpiar el almacenamiento del navegador.</p>
@@ -111,8 +113,8 @@ export const LEGALES = [
 <h2>Qué se contrata</h2>
 <p>La herramienta permite descargar gratuitamente el presupuesto en PDF con una marca de agua. Los productos de pago consisten en la supresión de esa marca de agua:</p>
 <ul>
-  <li><strong>Pago único (7 €, IVA incluido):</strong> permite descargar presupuestos sin marca de agua desde el navegador en el que se realiza la compra.</li>
-  <li><strong>Suscripción mensual (9 €/mes, IVA incluido):</strong> misma funcionalidad, con renovación mensual hasta su cancelación.</li>
+  <li><strong>Pago único (7 €, IVA incluido):</strong> da derecho a descargar sin marca de agua <strong>el presupuesto concreto</strong> que estaba en pantalla al realizar la compra, tantas veces como se quiera. No cubre otros presupuestos distintos.</li>
+  <li><strong>Suscripción mensual (19 €/mes, IVA incluido):</strong> permite descargar sin marca de agua todos los presupuestos que se elaboren mientras la suscripción esté activa, con renovación mensual hasta su cancelación.</li>
 </ul>
 <p>Se trata en ambos casos de contenido digital que no se suministra en soporte material.</p>
 
@@ -120,12 +122,12 @@ export const LEGALES = [
 <p>Los precios se muestran en euros con los impuestos incluidos. El pago se realiza mediante tarjeta a través de la pasarela de Stripe. La contratación se perfecciona cuando Stripe confirma el cobro y el usuario es devuelto a este sitio.</p>
 
 <h2>Entrega</h2>
-<p>La entrega es inmediata y automática: al volver de la pasarela de pago, la funcionalidad queda activada en el navegador utilizado. Al tratarse de una activación local, si el usuario cambia de navegador, de dispositivo o borra los datos de navegación, deberá contactar con el titular para que se le restablezca el acceso, aportando el justificante de la compra.</p>
+<p>La entrega es inmediata y automática: al volver de la pasarela de pago se comprueba el cobro con Stripe y queda activada la descarga sin marca de agua en el navegador utilizado. Si el usuario cambia de navegador, de dispositivo o borra los datos de navegación, deberá contactar con el titular para que se le restablezca el acceso, aportando el justificante de la compra.</p>
 
 <h2>Derecho de desistimiento</h2>
 <p>De acuerdo con el artículo 103.m) del texto refundido de la Ley General para la Defensa de los Consumidores y Usuarios, el derecho de desistimiento no resulta aplicable al suministro de contenido digital que no se preste en soporte material cuando la ejecución haya comenzado con el consentimiento previo y expreso del consumidor y con su conocimiento de que pierde por ello el derecho de desistimiento.</p>
 <p>Al completar el pago, el usuario solicita expresamente la ejecución inmediata y reconoce que, una vez activada la descarga sin marca de agua, pierde el derecho de desistimiento sobre el pago único.</p>
-<p>En el caso de la suscripción mensual, el usuario puede cancelarla en cualquier momento con efectos al final del periodo ya facturado, sin penalización. Los periodos ya consumidos no son reembolsables.</p>
+<p>En el caso de la suscripción mensual, el usuario puede cancelarla en cualquier momento con efectos al final del periodo ya facturado, sin penalización. Los periodos ya consumidos no son reembolsables. La cancelación se solicita escribiendo a la dirección de contacto indicada más abajo.</p>
 
 <h2>Si algo no funciona</h2>
 <p>Si el producto contratado no se activa o el PDF no se genera correctamente, escribe a ${TITULAR.email} describiendo el problema. Si no puede resolverse, se devolverá el importe íntegro.</p>

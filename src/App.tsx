@@ -5,7 +5,15 @@ import { Documentos } from "./components/Documentos";
 import { Editor } from "./components/Editor";
 import { Plantillas } from "./components/Plantillas";
 import { Vista } from "./components/Vista";
-import { recogerPagoDeLaUrl, tieneLicencia as leerLicencia } from "./licencia";
+import {
+  cubre,
+  descargarPdfLimpio,
+  leerLicencia,
+  medirLogo,
+  recogerPagoDeLaUrl,
+  renovarSuscripcion,
+} from "./licencia";
+import type { Licencia } from "./licencia";
 import { aplicarOficio, buscarOficio } from "./oficios";
 import type { Oficio } from "./oficios";
 import {
@@ -25,6 +33,7 @@ import {
   siguienteNumero,
 } from "./storage";
 import { presupuestoEjemplo, presupuestoVacio } from "./types";
+import { nombreArchivo } from "./nombres";
 import type { Presupuesto } from "./types";
 
 type Pestana = "editar" | "vista";
@@ -70,9 +79,7 @@ export default function App() {
   const [documentos, setDocumentos] = useState(inicial.current.documentos);
   const [presupuesto, setPresupuesto] = useState<Presupuesto>(inicial.current.actual);
 
-  // La licencia solo puede cambiar volviendo de Stripe, y eso siempre implica
-  // recargar la página: basta con resolverla una vez al montar.
-  const [licencia] = useState(() => recogerPagoDeLaUrl() || leerLicencia());
+  const [licencia, setLicencia] = useState<Licencia | null>(() => leerLicencia());
   const [pestana, setPestana] = useState<Pestana>("editar");
   const [guardado, setGuardado] = useState(false);
   const [generando, setGenerando] = useState(false);
@@ -87,12 +94,18 @@ export default function App() {
     window.clearTimeout(temporizador.current);
     temporizador.current = window.setTimeout(() => {
       const sellado = { ...presupuesto, actualizado: Date.now() };
-      guardarDocumento(sellado);
+      const seGuardo = guardarDocumento(sellado);
       guardarEmisor(sellado.emisor);
       guardarCliente(sellado.cliente);
       setDocumentos(cargarDocumentos());
       setClientes(clientesGuardados());
-      setGuardado(true);
+      setGuardado(seGuardo);
+      setError(
+        seGuardo
+          ? null
+          : "No se ha podido guardar: el navegador está sin espacio. Descarga una " +
+              "copia de seguridad desde «Mis presupuestos» y borra los que ya no uses.",
+      );
     }, 700);
     return () => window.clearTimeout(temporizador.current);
   }, [presupuesto]);
@@ -103,29 +116,92 @@ export default function App() {
     return () => window.clearTimeout(id);
   }, [guardado]);
 
+  // Vuelta de la pasarela: se cambia el identificador de sesión por una
+  // licencia firmada, preguntando a Stripe si el cobro consta de verdad.
+  useEffect(() => {
+    let cancelado = false;
+    recogerPagoDeLaUrl()
+      .then((nueva) => {
+        if (cancelado || !nueva) return;
+        setLicencia(nueva);
+        setAviso(
+          nueva.plan === "suscripcion"
+            ? "Suscripción activa. Todos tus presupuestos salen sin marca de agua."
+            : "Pago confirmado. Este presupuesto ya se descarga sin marca de agua.",
+        );
+      })
+      .catch((e) => {
+        if (!cancelado) {
+          setError(e instanceof Error ? e.message : "No se ha podido confirmar el pago.");
+        }
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  // La suscripción se revalida contra Stripe cuando el testigo está por caducar.
+  useEffect(() => {
+    if (licencia?.plan !== "suscripcion") return;
+    if (licencia.exp - Date.now() > 3 * 24 * 60 * 60 * 1000) return;
+    renovarSuscripcion(licencia)
+      .then((renovada) => renovada && setLicencia(renovada))
+      .catch(() => {
+        // Si la suscripción ya no está activa, la licencia caducará sola.
+      });
+  }, [licencia]);
+
   const actualizar = useCallback((cambios: Partial<Presupuesto>) => {
     setPresupuesto((anterior) => ({ ...anterior, ...cambios }));
   }, []);
 
-  /** Genera el PDF bajo demanda: jsPDF pesa más que el resto de la app junta. */
-  const construirPdf = useCallback(async () => {
-    const { generarPdf, nombreArchivo } = await import("./pdf");
+  /** ¿Está pagado este presupuesto concreto? La suscripción los cubre todos. */
+  const pagado = cubre(licencia, presupuesto.id);
+
+  /**
+   * Devuelve el PDF listo para guardar o compartir.
+   *
+   * Son dos caminos distintos a propósito. El gratuito se genera en el
+   * navegador: no cuesta nada, funciona sin conexión y el presupuesto no sale
+   * del equipo del usuario. El de pago lo genera el servidor, que es lo único
+   * que impide bajárselo limpio sin pagar.
+   */
+  const obtenerPdf = useCallback(async (): Promise<{ blob: Blob; nombre: string }> => {
+    const nombre = nombreArchivo(presupuesto);
+
+    if (pagado && licencia) {
+      const medidas = presupuesto.emisor.logo
+        ? await medirLogo(presupuesto.emisor.logo)
+        : undefined;
+      return { blob: await descargarPdfLimpio(presupuesto, licencia, medidas), nombre };
+    }
+
+    // jsPDF pesa más que el resto de la app junta: solo se carga al descargar.
+    const { generarPdf } = await import("./pdf");
     const doc = await generarPdf(presupuesto, {
-      conMarcaDeAgua: !licencia,
+      conMarcaDeAgua: true,
       // El dominio real, no uno escrito a mano en el código: el pie del PDF
-      // gratuito es el único anuncio que llega a los clientes de tus usuarios,
-      // y tiene que llevar a la web desde la que se ha generado.
+      // gratuito es el único anuncio que llega a los clientes de tus usuarios.
       dominio: window.location.host,
     });
-    return { doc, nombre: nombreArchivo(presupuesto) };
-  }, [presupuesto, licencia]);
+    return { blob: doc.output("blob"), nombre };
+  }, [presupuesto, licencia, pagado]);
+
+  const guardarArchivo = (blob: Blob, nombre: string) => {
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.download = nombre;
+    enlace.click();
+    URL.revokeObjectURL(url);
+  };
 
   const descargar = useCallback(async () => {
     setGenerando(true);
     setError(null);
     try {
-      const { doc, nombre } = await construirPdf();
-      doc.save(nombre);
+      const { blob, nombre } = await obtenerPdf();
+      guardarArchivo(blob, nombre);
     } catch (e) {
       setError(
         e instanceof Error
@@ -135,7 +211,7 @@ export default function App() {
     } finally {
       setGenerando(false);
     }
-  }, [construirPdf]);
+  }, [obtenerPdf]);
 
   /**
    * Compartir el archivo directamente es lo que convierte esto en una
@@ -146,10 +222,10 @@ export default function App() {
     setGenerando(true);
     setError(null);
     try {
-      const { doc, nombre } = await construirPdf();
-      const archivo = new File([doc.output("blob")], nombre, { type: "application/pdf" });
+      const { blob, nombre } = await obtenerPdf();
+      const archivo = new File([blob], nombre, { type: "application/pdf" });
       if (!navigator.canShare?.({ files: [archivo] })) {
-        doc.save(nombre);
+        guardarArchivo(blob, nombre);
         return;
       }
       await navigator.share({
@@ -167,7 +243,7 @@ export default function App() {
     } finally {
       setGenerando(false);
     }
-  }, [construirPdf, presupuesto.numero]);
+  }, [obtenerPdf, presupuesto.numero]);
 
   const puedeCompartir = useMemo(
     () => typeof navigator !== "undefined" && typeof navigator.canShare === "function",
@@ -329,13 +405,15 @@ export default function App() {
             <div className="vista__barra">
               <span className="vista__etiqueta">Vista previa</span>
             </div>
-            <Vista presupuesto={presupuesto} conMarcaDeAgua={!licencia} />
+            <Vista presupuesto={presupuesto} conMarcaDeAgua={!pagado} />
           </div>
 
           {aviso && <div className="aviso">{aviso}</div>}
 
           <Descarga
-            tieneLicencia={licencia}
+            pagado={pagado}
+            plan={licencia?.plan ?? null}
+            presupuestoId={presupuesto.id}
             generando={generando}
             error={error}
             puedeCompartir={puedeCompartir}

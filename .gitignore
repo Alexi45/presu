@@ -25,3 +25,6 @@ dist-ssr
 
 # Salida del revisor de PDF
 revision
+
+# Generado en el build para que lo use la funcion serverless
+netlify/functions/_lib

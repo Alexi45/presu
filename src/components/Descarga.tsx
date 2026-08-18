@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { SITIO } from "../contenido";
-import { enlaceDePago, pagoConfigurado } from "../licencia";
+import { iniciarPago } from "../licencia";
 import type { Plan } from "../licencia";
 
 interface DescargaProps {
-  tieneLicencia: boolean;
+  /** ¿Está pagado este presupuesto concreto? */
+  pagado: boolean;
+  plan: Plan | null;
+  presupuestoId: string;
   generando: boolean;
   error: string | null;
   puedeCompartir: boolean;
@@ -12,17 +16,27 @@ interface DescargaProps {
 }
 
 export function Descarga({
-  tieneLicencia,
+  pagado,
+  plan,
+  presupuestoId,
   generando,
   error,
   puedeCompartir,
   onDescargar,
   onCompartir,
 }: DescargaProps) {
-  const irAPagar = (plan: Plan) => {
-    const enlace = enlaceDePago(plan);
-    if (!enlace) return;
-    window.location.href = enlace;
+  const [yendoAPagar, setYendoAPagar] = useState<Plan | null>(null);
+  const [errorPago, setErrorPago] = useState<string | null>(null);
+
+  const pagar = async (elegido: Plan) => {
+    setYendoAPagar(elegido);
+    setErrorPago(null);
+    try {
+      await iniciarPago(elegido, presupuestoId);
+    } catch (e) {
+      setErrorPago(e instanceof Error ? e.message : "No se ha podido abrir el pago.");
+      setYendoAPagar(null);
+    }
   };
 
   const botonCompartir = puedeCompartir && (
@@ -37,13 +51,14 @@ export function Descarga({
     </button>
   );
 
-  if (tieneLicencia) {
+  if (pagado) {
     return (
       <div className="descarga">
         <h2 className="bloque__titulo">Descargar</h2>
         <p className="oferta__nota" style={{ marginBottom: 14 }}>
-          Tu presupuesto sale limpio, sin marcas. Puedes descargar los que quieras
-          desde este navegador.
+          {plan === "suscripcion"
+            ? "Suscripción activa: todos tus presupuestos salen sin marca de agua."
+            : "Este presupuesto está pagado. Descárgalo limpio las veces que quieras."}
         </p>
         <button
           type="button"
@@ -80,15 +95,16 @@ export function Descarga({
           <span className="oferta__sello">Más elegido</span>
           <div className="oferta__precio">{SITIO.precioUnico} €</div>
           <div className="oferta__nota">
-            Quita la marca de agua. Pago único, sin cuenta ni suscripción.
+            <strong>Este presupuesto</strong> sin marca de agua, con descargas
+            ilimitadas. Pago único, sin crear cuenta.
           </div>
           <button
             type="button"
             className="boton boton--primario"
-            onClick={() => irAPagar("unico")}
-            disabled={!enlaceDePago("unico")}
+            onClick={() => pagar("unico")}
+            disabled={yendoAPagar !== null}
           >
-            Quitar la marca
+            {yendoAPagar === "unico" ? "Abriendo el pago…" : "Quitar la marca"}
           </button>
         </div>
 
@@ -98,30 +114,26 @@ export function Descarga({
             <span style={{ fontSize: 14, color: "var(--gris)" }}>/mes</span>
           </div>
           <div className="oferta__nota">
-            Presupuestos ilimitados sin marca. Para quien manda varios al mes.
+            <strong>Todos</strong> tus presupuestos sin marca. Sale a cuenta desde
+            el tercero del mes. Cancelas cuando quieras.
           </div>
           <button
             type="button"
             className="boton boton--fantasma"
-            onClick={() => irAPagar("suscripcion")}
-            disabled={!enlaceDePago("suscripcion")}
+            onClick={() => pagar("suscripcion")}
+            disabled={yendoAPagar !== null}
           >
-            Ver el plan
+            {yendoAPagar === "suscripcion" ? "Abriendo el pago…" : "Suscribirme"}
           </button>
         </div>
       </div>
 
-      {!pagoConfigurado() && (
-        <div className="aviso aviso--error">
-          El cobro todavía no está conectado. Crea los enlaces de pago en Stripe y
-          ponlos en <code>.env.local</code> como <code>VITE_PAGO_UNICO_URL</code> y{" "}
-          <code>VITE_SUSCRIPCION_URL</code>.
-        </div>
-      )}
+      {errorPago && <div className="aviso aviso--error">{errorPago}</div>}
 
       <p style={{ fontSize: 12.5, color: "var(--gris-claro)", marginBottom: 0, lineHeight: 1.5 }}>
-        Tus presupuestos se guardan solo en este navegador, nunca en un servidor.
-        Descarga el PDF de los que quieras conservar.
+        Tus presupuestos se guardan solo en este navegador. Al comprar la descarga
+        sin marca, el presupuesto se envía a nuestro servidor para generarlo y no
+        se conserva allí.
       </p>
     </div>
   );

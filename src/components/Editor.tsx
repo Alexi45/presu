@@ -1,11 +1,10 @@
 import { euros, importeLinea } from "../calc";
 import { IRPF_DISPONIBLES, IVA_DISPONIBLES, UNIDADES, nuevaLinea } from "../types";
 import type { Cliente, Emisor, Linea, Plantilla, Presupuesto, TipoIva } from "../types";
+import { reducirLogo } from "../imagen";
 import { CampoCheck, CampoNumero, CampoSelect, CampoSugerencias, CampoTexto } from "./Campo";
 
 const COLORES = ["#E2582B", "#1A6FE0", "#1F8A5F", "#7A3FC4", "#1A2027", "#C4184B"];
-
-const TAM_MAXIMO_LOGO = 1_500_000;
 
 interface EditorProps {
   presupuesto: Presupuesto;
@@ -62,15 +61,14 @@ export function Editor({ presupuesto: p, clientes, actualizar }: EditorProps) {
     ...new Set(p.lineas.map((l) => l.capitulo.trim()).filter(Boolean)),
   ];
 
-  const cargarLogo = (archivo: File | undefined) => {
+  const cargarLogo = async (archivo: File | undefined) => {
     if (!archivo) return;
-    if (archivo.size > TAM_MAXIMO_LOGO) {
-      alert("El logotipo es demasiado grande. Usa una imagen de menos de 1,5 MB.");
-      return;
+    try {
+      const { dataUrl } = await reducirLogo(archivo);
+      actualizarEmisor({ logo: dataUrl });
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "No se ha podido cargar el logotipo.");
     }
-    const lector = new FileReader();
-    lector.onload = () => actualizarEmisor({ logo: String(lector.result) });
-    lector.readAsDataURL(archivo);
   };
 
   return (

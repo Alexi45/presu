@@ -30,6 +30,7 @@ async function cargar() {
     bundle: true,
     format: "esm",
     platform: "node",
+    define: { __PDF_SERVIDOR__: "true" },
     logLevel: "warning",
   });
   const sufijo = `?v=${Date.now()}`;

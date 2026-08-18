@@ -10,11 +10,10 @@ un Word feo o escrito a mano por WhatsApp.
 
 ## Modelo de negocio
 
-|                       | Gratis                 | Pago                                  |
-| --------------------- | ---------------------- | ------------------------------------- |
-| Crear y previsualizar | sí                     | sí                                    |
-| Descargar PDF         | sí, con marca de agua  | limpio                                |
-| Precio                | 0 €                    | 7 € pago único · 9 €/mes ilimitado    |
+|                       | Gratis                | 7 € (pago único)              | 19 €/mes            |
+| --------------------- | --------------------- | ----------------------------- | ------------------- |
+| Crear y previsualizar | sí                    | sí                            | sí                  |
+| Descargar PDF         | con marca de agua     | limpio, **ese presupuesto**   | limpio, **todos**   |
 
 El cobro se pide en el pico de compromiso: el usuario ya ha rellenado todo y
 está viendo su presupuesto terminado en pantalla. No hay que crear cuenta en
@@ -121,25 +120,42 @@ la revisión de un asesor**.
 
 ### 2. Conectar el cobro
 
-1. En Stripe, crea dos **Payment Links**: uno de pago único (7 €) y otro de
-   suscripción (9 €/mes).
-2. En cada uno, configura la URL de éxito:
-   - `https://TU-DOMINIO/?pago=ok&plan=unico`
-   - `https://TU-DOMINIO/?pago=ok&plan=suscripcion`
-3. Copia `.env.example` a `.env.local` y pega ahí las dos URLs. En Vercel o
-   Netlify, defínelas como variables de entorno del proyecto.
+No hay que crear productos ni enlaces de pago en Stripe: los importes y los
+planes los define el servidor en `netlify/functions/crear-pago.mjs`. Solo hacen
+falta **dos variables de entorno** en Netlify:
 
-En el propio Payment Link, activa la casilla de consentimiento de ejecución
-inmediata del contenido digital: es lo que exige la normativa de consumo para
-que el usuario pierda el derecho de desistimiento, tal como recogen las
-condiciones de contratación.
+| Variable | Qué es |
+|---|---|
+| `STRIPE_SECRET_KEY` | La clave secreta de tu cuenta de Stripe (`sk_live_…`). |
+| `LICENCIA_SECRET` | Una cadena larga y aleatoria que solo conoce el servidor: es la que firma las licencias. |
 
-**Limitación conocida y asumida:** la licencia se guarda en el navegador y se
-activa con un parámetro de la URL, así que cualquiera que escriba `?pago=ok` a
-mano se salta el pago. Es el precio de no tener servidor ni registro. Cuando el
-volumen lo justifique, se sustituye por una función serverless que verifique la
-sesión de Stripe; toda la lógica está aislada en `src/licencia.ts` y el resto de
-la app no cambia.
+Genera la segunda con:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
+```
+
+Ninguna de las dos aparece nunca en el navegador. Si cambias `LICENCIA_SECRET`,
+todas las licencias emitidas dejan de valer.
+
+El aviso de ejecución inmediata del contenido digital (necesario para que el
+usuario pierda el derecho de desistimiento) se muestra en la propia pantalla de
+Stripe, y lo pone `crear-pago.mjs` en `custom_text`.
+
+**Cómo se sostiene el cobro.** El PDF sin marca de agua **solo se genera en el
+servidor**, en `netlify/functions/generar-pdf.mjs`, y esa función exige una
+licencia firmada con HMAC que únicamente emite `verificar-pago.mjs` después de
+confirmar el cobro contra la API de Stripe. Falsificar el testigo en el
+navegador consigue que la interfaz diga «pagado» y nada más: el servidor
+devuelve 401 y no hay PDF.
+
+El PDF gratuito se sigue generando en el navegador. No cuesta nada servirlo,
+funciona sin conexión y así el presupuesto solo sale del equipo del usuario
+cuando ha pagado por ello.
+
+El pago único queda atado al presupuesto concreto que estaba en pantalla: su
+identificador viaja en los metadatos de la sesión de Stripe, que solo se
+escriben desde el servidor.
 
 ### 3. Desplegar
 
