@@ -37,6 +37,28 @@ const PLANES = {
   },
 };
 
+/**
+ * Crea la sesión y, si Stripe se queja del descriptor del extracto, lo repite
+ * sin él.
+ *
+ * El sufijo del descriptor solo se admite si la cuenta tiene configurado su
+ * descriptor por defecto. Que falte eso es un detalle de configuración, y un
+ * detalle de configuración no puede impedir una venta.
+ */
+async function crearSesion(stripe, parametros, idempotencyKey) {
+  try {
+    return await stripe.checkout.sessions.create(parametros, { idempotencyKey });
+  } catch (error) {
+    const esDelDescriptor = String(error?.raw?.param ?? error?.param ?? "").includes(
+      "statement_descriptor",
+    );
+    if (!esDelDescriptor) throw error;
+
+    const { payment_intent_data: _sinDescriptor, ...resto } = parametros;
+    return stripe.checkout.sessions.create(resto, { idempotencyKey: `${idempotencyKey}-sd` });
+  }
+}
+
 export default async (peticion) => {
   if (peticion.method !== "POST") {
     return Response.json({ error: "Método no permitido" }, { status: 405 });
@@ -65,7 +87,7 @@ export default async (peticion) => {
     const sitio = (process.env.URL ?? new URL(peticion.url).origin).replace(/\/$/, "");
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const sesion = await stripe.checkout.sessions.create({
+    const sesion = await crearSesion(stripe, {
       mode: elegido.modo,
       line_items: [
         {
@@ -92,18 +114,26 @@ export default async (peticion) => {
       },
       success_url: `${sitio}/?sesion={CHECKOUT_SESSION_ID}`,
       cancel_url: `${sitio}/?pago=cancelado`,
-    }, {
-      // Si el usuario pulsa dos veces o se le va la conexión, no se crean dos
-      // sesiones de pago para el mismo presupuesto en el mismo minuto.
-      idempotencyKey: `${plan}-${presupuestoId}-${Math.floor(Date.now() / 60000)}`,
-    });
+    }, `${plan}-${presupuestoId}-${Math.floor(Date.now() / 60000)}`);
 
     return Response.json({ url: sesion.url });
   } catch (error) {
     if (error instanceof ErrorValidacion) {
       return Response.json({ error: error.message }, { status: 400 });
     }
+
     console.error("crear-pago:", error);
-    return Response.json({ error: "No se ha podido iniciar el pago" }, { status: 500 });
+
+    // Se devuelve el motivo que da Stripe, no un «algo ha fallado». Sus mensajes
+    // no contienen la clave (la propia librería la censura) y sin ellos hay que
+    // ir a bucear en los registros de Netlify para saber que sobraba un espacio
+    // al copiar la clave.
+    return Response.json(
+      {
+        error: error?.raw?.message ?? error?.message ?? "No se ha podido iniciar el pago",
+        codigo: error?.code ?? error?.type ?? null,
+      },
+      { status: 500 },
+    );
   }
 };
