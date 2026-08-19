@@ -6,12 +6,13 @@ import { Editor } from "./components/Editor";
 import { Plantillas } from "./components/Plantillas";
 import { Vista } from "./components/Vista";
 import {
-  cubre,
   descargarPdfLimpio,
-  leerLicencia,
+  leerLicencias,
+  licenciaPara,
   medirLogo,
   recogerPagoDeLaUrl,
   renovarSuscripcion,
+  suscripcionActiva,
 } from "./licencia";
 import type { Licencia } from "./licencia";
 import { aplicarOficio, buscarOficio } from "./oficios";
@@ -79,7 +80,7 @@ export default function App() {
   const [documentos, setDocumentos] = useState(inicial.current.documentos);
   const [presupuesto, setPresupuesto] = useState<Presupuesto>(inicial.current.actual);
 
-  const [licencia, setLicencia] = useState<Licencia | null>(() => leerLicencia());
+  const [licencias, setLicencias] = useState<Licencia[]>(() => leerLicencias());
   const [pestana, setPestana] = useState<Pestana>("editar");
   const [guardado, setGuardado] = useState(false);
   const [generando, setGenerando] = useState(false);
@@ -121,13 +122,13 @@ export default function App() {
   useEffect(() => {
     let cancelado = false;
     recogerPagoDeLaUrl()
-      .then((nueva) => {
-        if (cancelado || !nueva) return;
-        setLicencia(nueva);
+      .then((todas) => {
+        if (cancelado || !todas) return;
+        setLicencias(todas);
         setAviso(
-          nueva.plan === "suscripcion"
+          todas.some((l) => l.plan === "suscripcion")
             ? "Suscripción activa. Todos tus presupuestos salen sin marca de agua."
-            : "Pago confirmado. Este presupuesto ya se descarga sin marca de agua.",
+            : "Acceso confirmado. Tus presupuestos pagados se descargan sin marca de agua.",
         );
       })
       .catch((e) => {
@@ -142,21 +143,23 @@ export default function App() {
 
   // La suscripción se revalida contra Stripe cuando el testigo está por caducar.
   useEffect(() => {
-    if (licencia?.plan !== "suscripcion") return;
-    if (licencia.exp - Date.now() > 3 * 24 * 60 * 60 * 1000) return;
-    renovarSuscripcion(licencia)
-      .then((renovada) => renovada && setLicencia(renovada))
+    const suscripcion = suscripcionActiva(licencias);
+    if (!suscripcion) return;
+    if (suscripcion.exp - Date.now() > 3 * 24 * 60 * 60 * 1000) return;
+    renovarSuscripcion(suscripcion)
+      .then(setLicencias)
       .catch(() => {
         // Si la suscripción ya no está activa, la licencia caducará sola.
       });
-  }, [licencia]);
+  }, [licencias]);
 
   const actualizar = useCallback((cambios: Partial<Presupuesto>) => {
     setPresupuesto((anterior) => ({ ...anterior, ...cambios }));
   }, []);
 
-  /** ¿Está pagado este presupuesto concreto? La suscripción los cubre todos. */
-  const pagado = cubre(licencia, presupuesto.id);
+  /** La licencia que cubre este presupuesto, si es que hay alguna. */
+  const licencia = licenciaPara(licencias, presupuesto.id);
+  const pagado = licencia !== null;
 
   /**
    * Devuelve el PDF listo para guardar o compartir.

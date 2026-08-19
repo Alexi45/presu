@@ -20,6 +20,8 @@ const SECRETO = process.env.LICENCIA_SECRET;
 export const DURACION_SUSCRIPCION = 35 * 24 * 60 * 60 * 1000;
 /** El pago único no caduca en la práctica, pero el testigo sí, por higiene. */
 export const DURACION_UNICO = 5 * 365 * 24 * 60 * 60 * 1000;
+/** El enlace de recuperación dura lo justo para abrirlo desde el correo. */
+export const DURACION_ACCESO = 30 * 60 * 1000;
 
 /**
  * Qué variables de entorno faltan. Devuelve solo los NOMBRES, nunca los

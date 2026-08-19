@@ -19,6 +19,7 @@ const { firmar, verificar } = await import("../netlify/functions/_licencia.mjs")
 const { validarPresupuesto } = await import("../netlify/functions/_validar.mjs");
 const generarPdf = (await import("../netlify/functions/generar-pdf.mjs")).default;
 const portalCliente = (await import("../netlify/functions/portal-cliente.mjs")).default;
+const recuperarAcceso = (await import("../netlify/functions/recuperar-acceso.mjs")).default;
 
 const PRESUPUESTO = {
   id: "presupuesto-A",
@@ -189,5 +190,46 @@ describe("portal de facturación", () => {
   it("rechaza otros métodos", async () => {
     const r = await portalCliente(new Request("https://ejemplo.test/x", { method: "GET" }));
     assert.equal(r.status, 405);
+  });
+});
+
+describe("enlace de recuperación de acceso", () => {
+  const pedirEnlace = (cuerpo) =>
+    recuperarAcceso(
+      new Request("https://ejemplo.test/.netlify/functions/recuperar-acceso", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cuerpo),
+      }),
+    );
+
+  it("rechaza otros métodos", async () => {
+    const r = await recuperarAcceso(new Request("https://ejemplo.test/x", { method: "GET" }));
+    assert.equal(r.status, 405);
+  });
+
+  it("avisa de que falta configurar el correo, sin inventarse que lo ha mandado", async () => {
+    const r = await pedirEnlace({ email: "alguien@ejemplo.es" });
+    assert.equal(r.status, 503);
+    assert.ok((await r.json()).faltan.includes("RESEND_API_KEY"));
+  });
+
+  it("el testigo de acceso caduca y no sirve como licencia", () => {
+    const acceso = firmar({ tipo: "acceso", email: "a@b.es", exp: Date.now() - 1 });
+    assert.equal(verificar(acceso), null);
+  });
+
+  it("un testigo de acceso válido dice de quién es y para qué sirve", () => {
+    const datos = { tipo: "acceso", email: "a@b.es", exp: dentroDeUnRato() };
+    assert.deepEqual(verificar(firmar(datos)), datos);
+  });
+
+  it("un testigo de acceso NO abre la función del PDF", async () => {
+    const acceso = firmar({ tipo: "acceso", email: "a@b.es", exp: dentroDeUnRato() });
+    const r = await pedirPdf({ licencia: acceso, presupuesto: PRESUPUESTO });
+    // El testigo de acceso está firmado por nosotros, pero no es una licencia.
+    // Sin comprobarlo explícitamente devolvía el PDF limpio: lo encontró esta
+    // misma prueba.
+    assert.equal(r.status, 401);
   });
 });

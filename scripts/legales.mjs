@@ -12,11 +12,50 @@
 
 const hueco = (texto) => `<span class="hueco">${texto}</span>`;
 
+/**
+ * Datos fiscales del titular.
+ *
+ * Vienen del entorno y no del código a propósito. Son datos personales —nombre,
+ * NIF y domicilio— y no tienen por qué quedar registrados para siempre en el
+ * historial de un repositorio público. Se definen en Netlify, en
+ * Site configuration > Environment variables, igual que las claves de Stripe.
+ *
+ * Si falta alguno, la página sale con el hueco resaltado en naranja y el build
+ * avisa por consola. Publicar el aviso legal con huecos incumple el artículo 10
+ * de la LSSI, así que es mejor que se vea a simple vista que esconderlo.
+ */
+function dato(variable, descripcion) {
+  const valor = process.env[variable]?.trim();
+  return valor ? escaparTexto(valor) : hueco(descripcion);
+}
+
+function escaparTexto(texto) {
+  return texto
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+export const VARIABLES_TITULAR = [
+  "TITULAR_NOMBRE",
+  "TITULAR_NIF",
+  "TITULAR_DOMICILIO",
+  "TITULAR_EMAIL",
+];
+
+export function titularIncompleto() {
+  return VARIABLES_TITULAR.filter((v) => !process.env[v]?.trim());
+}
+
 export const TITULAR = {
-  nombre: hueco("NOMBRE Y APELLIDOS O RAZÓN SOCIAL"),
-  nif: hueco("NIF/CIF"),
-  domicilio: hueco("DOMICILIO COMPLETO"),
-  email: hueco("CORREO DE CONTACTO"),
+  nombre: dato("TITULAR_NOMBRE", "NOMBRE Y APELLIDOS O RAZÓN SOCIAL"),
+  nif: dato("TITULAR_NIF", "NIF/CIF"),
+  // Los saltos de línea del domicilio se respetan.
+  domicilio: (process.env.TITULAR_DOMICILIO?.trim()
+    ? escaparTexto(process.env.TITULAR_DOMICILIO.trim()).replaceAll("\n", "<br />")
+    : hueco("DOMICILIO COMPLETO")),
+  email: dato("TITULAR_EMAIL", "CORREO DE CONTACTO"),
 };
 
 export const LEGALES = [

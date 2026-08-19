@@ -43,6 +43,44 @@ function licenciaDeSesion(sesion) {
   };
 }
 
+/**
+ * Todo lo que ha comprado un correo: la suscripción si sigue activa, y cada
+ * presupuesto suelto que haya pagado. Se devuelven todas porque alguien puede
+ * haber comprado varios presupuestos por separado.
+ */
+async function licenciasDeCorreo(stripe, email) {
+  const clientes = await stripe.customers.list({ email, limit: 5 });
+  const licencias = [];
+  const vistos = new Set();
+
+  for (const cliente of clientes.data) {
+    const suscripciones = await stripe.subscriptions.list({
+      customer: cliente.id,
+      status: "active",
+      limit: 5,
+    });
+    for (const suscripcion of suscripciones.data) {
+      licencias.push({
+        plan: "suscripcion",
+        sub: suscripcion.id,
+        cus: cliente.id,
+        exp: Date.now() + DURACION_SUSCRIPCION,
+      });
+    }
+
+    const sesiones = await stripe.checkout.sessions.list({ customer: cliente.id, limit: 50 });
+    for (const sesion of sesiones.data) {
+      const presupuestoId = sesion.metadata?.presupuestoId;
+      if (sesion.mode !== "payment" || sesion.payment_status !== "paid") continue;
+      if (!presupuestoId || vistos.has(presupuestoId)) continue;
+      vistos.add(presupuestoId);
+      licencias.push({ plan: "unico", presupuestoId, exp: Date.now() + DURACION_UNICO });
+    }
+  }
+
+  return licencias;
+}
+
 export default async (peticion) => {
   if (peticion.method !== "POST") {
     return Response.json({ error: "Método no permitido" }, { status: 405 });
@@ -63,6 +101,25 @@ export default async (peticion) => {
 
   try {
     const cuerpo = await leerCuerpo(peticion);
+
+    // Canje del enlace de recuperación: se vuelven a consultar las compras a
+    // Stripe en vez de fiarse de lo que dijera el testigo, para que una
+    // suscripción cancelada entre medias no siga abriendo la puerta.
+    if (cuerpo?.acceso) {
+      const datos = verificar(cuerpo.acceso);
+      if (datos?.tipo !== "acceso" || !datos.email) {
+        return Response.json({ error: "El enlace ha caducado o no es válido" }, { status: 401 });
+      }
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const licencias = await licenciasDeCorreo(stripe, datos.email);
+      if (licencias.length === 0) {
+        return Response.json(
+          { error: "Ese correo ya no tiene ninguna compra activa" },
+          { status: 402 },
+        );
+      }
+      return Response.json({ licencias: licencias.map(firmar) });
+    }
 
     // Renovación de una suscripción ya comprada: se vuelve a preguntar a Stripe.
     if (cuerpo?.renovar) {

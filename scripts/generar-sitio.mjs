@@ -2,7 +2,7 @@ import { build } from "esbuild";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { LEGALES } from "./legales.mjs";
+import { LEGALES, titularIncompleto } from "./legales.mjs";
 import { escapar, pagina } from "./plantilla.mjs";
 
 /**
@@ -481,6 +481,15 @@ ${datos.OFICIOS.map(
     </main>`,
     }),
   );
+
+  const faltan = titularIncompleto();
+  if (faltan.length > 0) {
+    console.warn(
+      `\n  AVISO: faltan los datos fiscales del titular (${faltan.join(", ")}).\n` +
+        "  Las páginas legales saldrán con los huecos en naranja, y publicarlas\n" +
+        "  así incumple el artículo 10 de la LSSI. Defínelas en Netlify.\n",
+    );
+  }
 
   await enriquecerIndex(datos);
   await rm(TEMPORAL, { recursive: true, force: true });

@@ -1307,3 +1307,14 @@ button {
   line-height: 1.45;
   color: var(--gris-claro);
 }
+
+.recuperar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-sm);
+  background: var(--papel);
+}

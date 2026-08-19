@@ -110,9 +110,18 @@ Dos decisiones que conviene conocer antes de tocar nada:
 
 ### 1. Rellenar los datos legales
 
-Antes de publicar, edita `scripts/legales.mjs` y sustituye el objeto `TITULAR`
-por tus datos fiscales reales. Los huecos salen resaltados en naranja en las
-páginas publicadas justamente para que no se te pasen.
+Los datos fiscales del titular van en **variables de entorno**, no en el código:
+son datos personales y no tienen por qué quedar en el historial del repositorio.
+
+| Variable | Ejemplo |
+|---|---|
+| `TITULAR_NOMBRE` | Nombre y apellidos, o razón social |
+| `TITULAR_NIF` | NIF o CIF |
+| `TITULAR_DOMICILIO` | Domicilio completo (admite saltos de línea) |
+| `TITULAR_EMAIL` | Correo de contacto que se publica |
+
+Si falta alguna, esa parte sale como un hueco naranja en las páginas legales y
+el build avisa por consola. Publicarlo así incumple el artículo 10 de la LSSI.
 
 Los textos legales están redactados para este caso concreto (producto digital,
 sin registro, sin datos en servidor, cobro por Stripe), pero **no sustituyen a
@@ -128,6 +137,8 @@ falta **dos variables de entorno** en Netlify:
 |---|---|
 | `STRIPE_SECRET_KEY` | La clave secreta de tu cuenta de Stripe (`sk_live_…`). |
 | `LICENCIA_SECRET` | Una cadena larga y aleatoria que solo conoce el servidor: es la que firma las licencias. |
+| `RESEND_API_KEY` | Clave de [Resend](https://resend.com) para enviar el enlace de recuperación de acceso. |
+| `EMAIL_REMITENTE` | Remitente de ese correo, p. ej. `PresupPRO <hola@tudominio.com>`. |
 
 Genera la segunda con:
 
@@ -156,6 +167,20 @@ cuando ha pagado por ello.
 El pago único queda atado al presupuesto concreto que estaba en pantalla: su
 identificador viaja en los metadatos de la sesión de Stripe, que solo se
 escriben desde el servidor.
+
+**Recuperar el acceso.** La licencia vive en el navegador donde se compró, así
+que cambiar de móvil equivaldría a perder lo pagado. Con «Ya he pagado,
+recuperar mi acceso» se pide un enlace por correo: el servidor busca ese correo
+en Stripe y, si tiene compras, manda un enlace de 30 minutos que devuelve
+**todas** sus licencias. No hay cuentas ni contraseñas — Stripe ya sabe quién ha
+pagado, y lo único que falta es comprobar que quien lo pide es el dueño del
+correo. La respuesta es siempre la misma haya compra o no, para que nadie pueda
+averiguar qué correos son clientes.
+
+Ojo con una trampa que ya se coló una vez: `generar-pdf` acepta **solo** los
+testigos con plan `unico` o `suscripcion`. El del enlace de recuperación también
+lo firma el servidor, y sin esa comprobación explícita abría la descarga limpia.
+Lista blanca, nunca lista negra.
 
 ### 3. Desplegar
 

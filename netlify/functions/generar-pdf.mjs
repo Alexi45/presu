@@ -30,7 +30,12 @@ export default async (peticion) => {
     const cuerpo = await leerCuerpo(peticion);
     const licencia = verificar(cuerpo?.licencia);
 
-    if (!licencia) {
+    // Se comprueba que sea una LICENCIA, no cualquier testigo que hayamos
+    // firmado. El del enlace de recuperación no lleva plan, y sin esta línea
+    // pasaba de largo la comprobación de más abajo y devolvía el PDF limpio.
+    // Lista blanca y no negra: un tipo de testigo nuevo no debe abrir nada.
+    const planes = ["unico", "suscripcion"];
+    if (!licencia || !planes.includes(licencia.plan)) {
       return Response.json({ error: "Licencia no válida o caducada" }, { status: 401 });
     }
 

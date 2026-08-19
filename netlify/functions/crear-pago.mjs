@@ -111,6 +111,9 @@ export default async (peticion) => {
         },
       ],
       locale: "es",
+      // Sin cliente en Stripe, quien paga un presupuesto suelto no podría
+      // recuperar su compra desde otro dispositivo: no habría a quién buscar.
+      ...(elegido.modo === "payment" ? { customer_creation: "always" } : {}),
       metadata: { presupuestoId: String(presupuestoId ?? "").slice(0, 60), plan },
       // Sin esto, Stripe figura como vendedor y quien responde ante el cliente
       // es Stripe, no tú. Las condiciones publicadas dicen que el vendedor eres

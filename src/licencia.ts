@@ -15,8 +15,9 @@ import type { Presupuesto } from "./types";
  * que consigue es que el servidor le devuelva un 401.
  */
 
-const CLAVE = "presu.licencia.v2";
-const CLAVE_ANTIGUA = "presu.licencia.v1";
+const CLAVE = "presu.licencias.v3";
+const CLAVE_ANTIGUA = "presu.licencia.v2";
+const CLAVE_PREHISTORICA = "presu.licencia.v1";
 
 export type Plan = "unico" | "suscripcion";
 
@@ -43,39 +44,87 @@ function leerCarga(testigo: string): Omit<Licencia, "testigo"> | null {
   }
 }
 
-export function leerLicencia(): Licencia | null {
+/**
+ * Se guardan TODAS las licencias, no la última.
+ *
+ * Antes solo cabía una, así que pagar un segundo presupuesto borraba el derecho
+ * sobre el primero: el usuario había pagado dos veces y solo podía descargar
+ * uno. Ahora conviven, y una suscripción no anula los pagos sueltos anteriores.
+ */
+export function leerLicencias(): Licencia[] {
   try {
-    // La licencia vieja no vale: se emitía sin comprobar ningún pago.
-    localStorage.removeItem(CLAVE_ANTIGUA);
-    const testigo = localStorage.getItem(CLAVE);
-    if (!testigo) return null;
-    const carga = leerCarga(testigo);
-    if (!carga) {
-      localStorage.removeItem(CLAVE);
-      return null;
+    // La primera versión se emitía sin comprobar ningún pago: no vale.
+    localStorage.removeItem(CLAVE_PREHISTORICA);
+
+    const testigos: string[] = [];
+
+    const guardadas = localStorage.getItem(CLAVE);
+    if (guardadas) testigos.push(...(JSON.parse(guardadas) as string[]));
+
+    // Migración desde la época de una sola licencia.
+    const suelta = localStorage.getItem(CLAVE_ANTIGUA);
+    if (suelta) {
+      testigos.push(suelta);
+      localStorage.removeItem(CLAVE_ANTIGUA);
     }
-    return { testigo, ...carga };
+
+    const validas = testigos
+      .map((testigo) => {
+        const carga = leerCarga(testigo);
+        return carga ? { testigo, ...carga } : null;
+      })
+      .filter((l): l is Licencia => l !== null);
+
+    escribir(validas);
+    return validas;
   } catch {
-    return null;
+    return [];
   }
 }
 
-function guardar(testigo: string): Licencia | null {
-  const carga = leerCarga(testigo);
-  if (!carga) return null;
+function escribir(licencias: Licencia[]): void {
   try {
-    localStorage.setItem(CLAVE, testigo);
+    localStorage.setItem(CLAVE, JSON.stringify(licencias.map((l) => l.testigo)));
   } catch {
-    // Sin almacenamiento la licencia dura lo que la pestaña; el pago sigue valiendo.
+    // Sin almacenamiento duran lo que la pestaña; el pago sigue valiendo.
   }
-  return { testigo, ...carga };
 }
 
-/** ¿Esta licencia cubre este presupuesto? La suscripción los cubre todos. */
-export function cubre(licencia: Licencia | null, presupuestoId: string): boolean {
-  if (!licencia) return false;
-  if (licencia.plan === "suscripcion") return true;
-  return licencia.presupuestoId === presupuestoId;
+/** Añade licencias nuevas sin tirar las que ya había. */
+export function guardarLicencias(testigos: string[]): Licencia[] {
+  const nuevas = testigos
+    .map((testigo) => {
+      const carga = leerCarga(testigo);
+      return carga ? { testigo, ...carga } : null;
+    })
+    .filter((l): l is Licencia => l !== null);
+
+  const todas = [...leerLicencias()];
+  for (const nueva of nuevas) {
+    const yaEsta = todas.some(
+      (l) => l.plan === nueva.plan && l.presupuestoId === nueva.presupuestoId,
+    );
+    if (!yaEsta) todas.push(nueva);
+  }
+
+  escribir(todas);
+  return todas;
+}
+
+/** La licencia que cubre este presupuesto, si hay alguna. */
+export function licenciaPara(
+  licencias: Licencia[],
+  presupuestoId: string,
+): Licencia | null {
+  return (
+    licencias.find((l) => l.plan === "suscripcion") ??
+    licencias.find((l) => l.presupuestoId === presupuestoId) ??
+    null
+  );
+}
+
+export function suscripcionActiva(licencias: Licencia[]): Licencia | null {
+  return licencias.find((l) => l.plan === "suscripcion") ?? null;
 }
 
 async function pedir<T>(funcion: string, cuerpo: unknown): Promise<T> {
@@ -103,24 +152,38 @@ export async function iniciarPago(plan: Plan, presupuestoId: string): Promise<vo
  * Al volver de Stripe la URL trae `?sesion=`. Se cambia por una licencia
  * firmada y se limpia el parámetro para que una recarga no repita la consulta.
  */
-export async function recogerPagoDeLaUrl(): Promise<Licencia | null> {
+export async function recogerPagoDeLaUrl(): Promise<Licencia[] | null> {
   const params = new URLSearchParams(window.location.search);
   const sesion = params.get("sesion");
+  const acceso = params.get("acceso");
 
-  if (!sesion) return null;
+  if (!sesion && !acceso) return null;
 
-  limpiarParametros(["sesion", "pago"]);
+  limpiarParametros(["sesion", "acceso", "pago"]);
+
+  // Al volver de Stripe llega una licencia; al abrir el enlace del correo,
+  // todas las que tenga ese cliente.
+  if (acceso) {
+    const { licencias } = await pedir<{ licencias: string[] }>("verificar-pago", { acceso });
+    return guardarLicencias(licencias);
+  }
 
   const { licencia } = await pedir<{ licencia: string }>("verificar-pago", { sesion });
-  return guardar(licencia);
+  return guardarLicencias([licencia]);
+}
+
+/** Pide por correo el enlace que devuelve el acceso en este dispositivo. */
+export async function pedirEnlaceDeAcceso(email: string): Promise<string> {
+  const { mensaje } = await pedir<{ mensaje: string }>("recuperar-acceso", { email });
+  return mensaje;
 }
 
 /** Renueva la suscripción preguntando otra vez a Stripe si sigue activa. */
-export async function renovarSuscripcion(licencia: Licencia): Promise<Licencia | null> {
+export async function renovarSuscripcion(licencia: Licencia): Promise<Licencia[]> {
   const respuesta = await pedir<{ licencia: string }>("verificar-pago", {
     renovar: licencia.testigo,
   });
-  return guardar(respuesta.licencia);
+  return guardarLicencias([respuesta.licencia]);
 }
 
 /**
