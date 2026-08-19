@@ -11,7 +11,7 @@ export const SITIO = {
    * En producción manda la variable de entorno SITE_URL, y dentro de la
    * aplicación el dominio se toma de `window.location.host`.
    */
-  url: "https://presu.app",
+  url: "http://localhost",
   descripcion:
     "Crea presupuestos profesionales en PDF en dos minutos. Con IVA desglosado, retención de IRPF y tu logotipo. Sin registro.",
   precioUnico: 7,

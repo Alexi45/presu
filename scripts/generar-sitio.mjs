@@ -41,10 +41,13 @@ function resolverSitio() {
   }
   console.warn(
     "\n  AVISO: no hay SITE_URL ni URL en el entorno.\n" +
-      "  Las canónicas y el sitemap se generan con el dominio de ejemplo.\n" +
+      "  Las canónicas y el sitemap apuntarán a localhost.\n" +
       "  No publiques este build.\n",
   );
-  return "https://presu.app";
+  // Nunca un dominio real ajeno: un respaldo mal elegido manda tu tráfico y
+  // tus canónicas a otra web. Localhost es inservible en producción, que es
+  // justo lo que se quiere de un respaldo.
+  return "http://localhost";
 }
 
 const SITIO = resolverSitio().replace(/\/$/, "");

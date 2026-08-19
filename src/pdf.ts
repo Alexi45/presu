@@ -142,7 +142,7 @@ export async function generarPdf(
   const acento = hexARgb(p.color);
   const totales = calcular(p);
   const rotulo: RGB = estilo.rotulosEnColor ? acento : GRIS;
-  const dominio = opciones.dominio ?? "presu.app";
+  const dominio = opciones.dominio ?? "";
   const conMarcaDeAgua = __PDF_SERVIDOR__ ? opciones.conMarcaDeAgua : true;
 
   let y = 0;
@@ -522,7 +522,7 @@ export async function generarPdf(
         align: "center",
         angle: 32,
       });
-      texto(`Creado con Presu · ${dominio}`, ANCHO / 2, ALTO - 6, {
+      texto(dominio ? `Creado con Presu · ${dominio}` : "Creado con Presu", ANCHO / 2, ALTO - 6, {
         size: 7.5,
         color: GRIS,
         align: "center",
