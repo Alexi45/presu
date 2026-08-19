@@ -29,6 +29,19 @@ const LINEA = [230, 225, 218];
 const doc = new jsPDF({ unit: "pt", format: [ANCHO, ALTO], orientation: "landscape" });
 
 const rellenar = ([r, g, b]) => doc.setFillColor(r, g, b);
+
+/** El símbolo de la marca: una plomada, el hilo con su peso al final. */
+function plomada(destino, x, y, alto) {
+  const hilo = alto * 0.45;
+  destino.setDrawColor(255, 255, 255);
+  destino.setLineWidth(alto * 0.09);
+  destino.setLineCap("round");
+  destino.line(x, y, x, y + hilo);
+  destino.setFillColor(255, 255, 255);
+  const ancho = alto * 0.3;
+  destino.triangle(x, y + hilo, x + ancho, y + hilo + alto * 0.22, x, y + alto, "F");
+  destino.triangle(x, y + hilo, x - ancho, y + hilo + alto * 0.22, x, y + alto, "F");
+}
 const escribir = (texto, x, y, { size, bold, color = TINTA, align = "left" }) => {
   doc.setFontSize(size);
   doc.setFont("helvetica", bold ? "bold" : "normal");
@@ -45,8 +58,8 @@ doc.rect(0, 0, ANCHO, 10, "F");
 // Marca.
 rellenar(ACENTO);
 doc.roundedRect(72, 66, 44, 44, 12, 12, "F");
-escribir("€", 86, 97, { size: 24, bold: true, color: BLANCO });
-escribir("Presu", 128, 98, { size: 30, bold: true });
+plomada(doc, 94, 76, 24);
+escribir("Plomada", 128, 98, { size: 30, bold: true });
 
 // Titular.
 escribir("Presupuestos", 72, 232, { size: 66, bold: true });
@@ -101,10 +114,7 @@ function icono(lado) {
   const app = new jsPDF({ unit: "pt", format: [lado, lado] });
   app.setFillColor(ACENTO[0], ACENTO[1], ACENTO[2]);
   app.rect(0, 0, lado, lado, "F");
-  app.setFont("helvetica", "bold");
-  app.setFontSize(lado * 0.56);
-  app.setTextColor(255, 255, 255);
-  app.text("€", lado / 2, lado * 0.7, { align: "center" });
+  plomada(app, lado / 2, lado * 0.22, lado * 0.56);
   return Buffer.from(app.output("arraybuffer"));
 }
 

@@ -92,7 +92,7 @@ function aplicacionJsonLd(SITIO_DATOS) {
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Presu",
+    name: "Plomada",
     url: `${SITIO}/`,
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
@@ -123,8 +123,8 @@ function articuloJsonLd(guia, url) {
     description: guia.descripcion,
     inLanguage: "es-ES",
     mainEntityOfPage: url,
-    author: { "@type": "Organization", name: "Presu" },
-    publisher: { "@type": "Organization", name: "Presu" },
+    author: { "@type": "Organization", name: "Plomada" },
+    publisher: { "@type": "Organization", name: "Plomada" },
   };
 }
 
@@ -133,7 +133,7 @@ function migasJsonLd(nombre, url) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Presu", item: `${SITIO}/` },
+      { "@type": "ListItem", position: 1, name: "Plomada", item: `${SITIO}/` },
       { "@type": "ListItem", position: 2, name: nombre, item: url },
     ],
   };
@@ -176,7 +176,7 @@ function cuerpoOficio(oficio) {
     .join("\n");
 
   return `    <main>
-      <nav class="miga"><a href="/">Presu</a> › ${escapar(oficio.h1)}</nav>
+      <nav class="miga"><a href="/">Plomada</a> › ${escapar(oficio.h1)}</nav>
       <h1>${escapar(oficio.h1)} en PDF</h1>
       <p class="entradilla">${escapar(oficio.entradilla)}</p>
       <div class="llamada">
@@ -252,7 +252,7 @@ ${
     .join("\n");
 
   return `    <main class="legal">
-      <nav class="miga"><a href="/">Presu</a> › <a href="/guias/">Guías</a> › ${escapar(guia.h1)}</nav>
+      <nav class="miga"><a href="/">Plomada</a> › <a href="/guias/">Guías</a> › ${escapar(guia.h1)}</nav>
       <h1>${escapar(guia.h1)}</h1>
       <p class="entradilla">${escapar(guia.entradilla)}</p>
 ${guia.aviso ? `      <p class="aviso-legal">${escapar(guia.aviso)}</p>` : ""}
@@ -288,7 +288,7 @@ function cuerpoIndiceGuias(guias) {
     .join("\n");
 
   return `    <main>
-      <nav class="miga"><a href="/">Presu</a> › Guías</nav>
+      <nav class="miga"><a href="/">Plomada</a> › Guías</nav>
       <h1>Guías para autónomos y gremios</h1>
       <p class="entradilla">Las dudas que salen al hacer un presupuesto, explicadas sin rodeos.</p>
       <ul class="fichas">
@@ -304,7 +304,7 @@ ${fichas}
 
 function cuerpoLegal(legal) {
   return `    <main class="legal">
-      <nav class="miga"><a href="/">Presu</a> › ${escapar(legal.h1)}</nav>
+      <nav class="miga"><a href="/">Plomada</a> › ${escapar(legal.h1)}</nav>
       <h1>${escapar(legal.h1)}</h1>
       ${legal.cuerpo}
       <p class="nota" style="margin-top:40px">Última actualización: ${new Date().toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}.</p>
@@ -325,8 +325,8 @@ async function enriquecerIndex(datos) {
   const etiquetas = [
     `<link rel="canonical" href="${SITIO}/" />`,
     `<meta property="og:type" content="website" />`,
-    `<meta property="og:site_name" content="Presu" />`,
-    `<meta property="og:title" content="Presu · Presupuestos profesionales en PDF en 2 minutos" />`,
+    `<meta property="og:site_name" content="Plomada" />`,
+    `<meta property="og:title" content="Plomada · Presupuestos profesionales en PDF en 2 minutos" />`,
     `<meta property="og:description" content="${escapar(datos.SITIO.descripcion)}" />`,
     `<meta property="og:url" content="${SITIO}/" />`,
     `<meta property="og:image" content="${SITIO}/og.png" />`,
@@ -367,7 +367,7 @@ async function main() {
   await escribirPagina(
     "guias/index.html",
     pagina({
-      titulo: "Guías sobre presupuestos, IVA e IRPF para autónomos | Presu",
+      titulo: "Guías sobre presupuestos, IVA e IRPF para autónomos | Plomada",
       descripcion:
         "Guías prácticas para autónomos y gremios: qué IVA aplicar en reformas, cuándo lleva retención de IRPF una factura y cómo hacer un presupuesto que se acepte.",
       canonica: indiceGuias,
@@ -461,7 +461,7 @@ ${rutas
   await escribirPagina(
     "404.html",
     pagina({
-      titulo: "Página no encontrada | Presu",
+      titulo: "Página no encontrada | Plomada",
       descripcion: "Esta página no existe. Vuelve al inicio para hacer tu presupuesto.",
       canonica: `${SITIO}/`,
       sitio: SITIO,

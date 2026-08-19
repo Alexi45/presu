@@ -47,7 +47,7 @@ export function Vista({ presupuesto: p, conMarcaDeAgua }: VistaProps) {
 
       {conMarcaDeAgua && (
         <div className="hoja__marca" aria-hidden="true">
-          <span>PRESU · VERSIÓN GRATUITA</span>
+          <span>PLOMADA · VERSIÓN GRATUITA</span>
         </div>
       )}
 

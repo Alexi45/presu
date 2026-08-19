@@ -110,7 +110,7 @@ export function pagina({ titulo, descripcion, canonica, sitio, cuerpo, jsonLd = 
     <meta name="theme-color" content="#E2582B" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Presu" />
+    <meta property="og:site_name" content="Plomada" />
     <meta property="og:title" content="${escapar(titulo)}" />
     <meta property="og:description" content="${escapar(descripcion)}" />
     <meta property="og:url" content="${escapar(canonica)}" />
@@ -128,14 +128,14 @@ export function pagina({ titulo, descripcion, canonica, sitio, cuerpo, jsonLd = 
   </head>
   <body>
     <header class="barra">
-      <a class="marca" href="/"><span>€</span>Presu</a>
+      <a class="marca" href="/"><span><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 3v8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M12 9.5l4 6-4 6-4-6z" fill="currentColor"/></svg></span>Plomada</a>
       <a class="nav" href="/guias/">Guías</a>
       <a class="boton" href="/">Hacer un presupuesto</a>
     </header>
     ${cuerpo}
     <footer class="pie">
       <div>
-        <strong style="color:var(--tinta)">Presu</strong>
+        <strong style="color:var(--tinta)">Plomada</strong>
         <span>Presupuestos en PDF para autónomos y gremios.</span>
         <span style="margin-left:auto;display:flex;gap:16px">
           <a href="/guias/">Guías</a>

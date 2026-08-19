@@ -17,6 +17,10 @@ const ALTO = 297;
 const MARGEN = 18;
 const DERECHA = ANCHO - MARGEN;
 
+/** Nombre de la marca. En un solo sitio: al renombrar el producto solo se toca aquí. */
+const NOMBRE = "Plomada";
+const TAMANO_MARCA = 46;
+
 const COL_CANTIDAD = 138;
 const COL_PRECIO = 158;
 const COL_IVA = 170;
@@ -515,14 +519,29 @@ export async function generarPdf(
     texto(`${pagina} / ${paginas}`, DERECHA, ALTO - 11, { size: 7.5, color: GRIS, align: "right" });
 
     if (conMarcaDeAgua) {
+      // El tamaño y la posición se calculan, no se fijan. jsPDF no centra bien
+      // un texto girado, así que se mide el ancho real, se encoge para que la
+      // diagonal quepa en la hoja y se coloca el punto de inicio a mano para
+      // que el centro del texto caiga en el centro de la página.
+      const marca = `${NOMBRE.toUpperCase()} · VERSIÓN GRATUITA`;
+      const radianes = (32 * Math.PI) / 180;
+
       doc.setFont(estilo.fuente, "bold");
-      doc.setFontSize(46);
+      doc.setFontSize(TAMANO_MARCA);
+      const anchoBase = doc.getTextWidth(marca);
+      const cabe = (ANCHO - 24) / Math.cos(radianes);
+      const tamano = anchoBase > cabe ? TAMANO_MARCA * (cabe / anchoBase) : TAMANO_MARCA;
+
+      doc.setFontSize(tamano);
+      const largo = doc.getTextWidth(marca);
       doc.setTextColor(LINEA[0], LINEA[1], LINEA[2]);
-      doc.text("PRESU · VERSIÓN GRATUITA", ANCHO / 2, ALTO / 2, {
-        align: "center",
-        angle: 32,
-      });
-      texto(dominio ? `Creado con Presu · ${dominio}` : "Creado con Presu", ANCHO / 2, ALTO - 6, {
+      doc.text(
+        marca,
+        ANCHO / 2 - (largo * Math.cos(radianes)) / 2,
+        ALTO / 2 + (largo * Math.sin(radianes)) / 2,
+        { angle: 32 },
+      );
+      texto(dominio ? `Creado con ${NOMBRE} · ${dominio}` : `Creado con ${NOMBRE}`, ANCHO / 2, ALTO - 6, {
         size: 7.5,
         color: GRIS,
         align: "center",

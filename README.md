@@ -1,4 +1,4 @@
-# Presu
+# Plomada
 
 Herramienta web para hacer presupuestos profesionales en PDF. Entras, rellenas,
 ves el resultado en vivo y descargas. Sin registro.

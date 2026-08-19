@@ -15,7 +15,7 @@ export function Contenido() {
           <section>
             <h2>Cómo hacer un presupuesto en dos minutos</h2>
             <p>
-              Presu es una herramienta para autónomos y gremios que necesitan
+              Plomada es una herramienta para autónomos y gremios que necesitan
               mandar un presupuesto con buena pinta sin pelearse con el Word ni
               pagar un programa de facturación entero. Se rellena arriba, se ve
               el resultado en vivo y se descarga en PDF.
@@ -97,7 +97,7 @@ export function Contenido() {
 
       <footer className="pie">
         <div className="pie__interior">
-          <strong style={{ color: "var(--tinta)" }}>Presu</strong>
+          <strong style={{ color: "var(--tinta)" }}>Plomada</strong>
           <span>Presupuestos en PDF para autónomos y gremios.</span>
           <span style={{ marginLeft: "auto", display: "flex", gap: 16 }}>
             <a href="/guias/">Guías</a>

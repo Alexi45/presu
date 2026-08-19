@@ -1,7 +1,7 @@
 /**
  * Textos legales de partida.
  *
- * Son plantillas redactadas para el caso concreto de Presu (producto digital,
+ * Son plantillas redactadas para el caso concreto de Plomada (producto digital,
  * sin registro, con los datos en el navegador salvo la descarga de pago, y
  * cobro por Stripe). Los datos fiscales
  * del titular están marcados con la clase `hueco` para que no se olvide
@@ -22,10 +22,10 @@ export const TITULAR = {
 export const LEGALES = [
   {
     slug: "aviso-legal",
-    titulo: "Aviso legal | Presu",
+    titulo: "Aviso legal | Plomada",
     h1: "Aviso legal",
     descripcion:
-      "Información sobre el titular del sitio web Presu, condiciones de uso y propiedad intelectual.",
+      "Información sobre el titular del sitio web Plomada, condiciones de uso y propiedad intelectual.",
     cuerpo: `
 <p>En cumplimiento del artículo 10 de la Ley 34/2002, de Servicios de la Sociedad de la Información y de Comercio Electrónico, se informa de los siguientes datos:</p>
 
@@ -39,7 +39,7 @@ export const LEGALES = [
 </ul>
 
 <h2>Objeto</h2>
-<p>Presu es una herramienta que permite elaborar documentos de presupuesto y descargarlos en formato PDF. El uso de la herramienta es libre y no requiere registro. Determinadas funciones están sujetas a pago según se detalla en las <a href="/condiciones/">condiciones de contratación</a>.</p>
+<p>Plomada es una herramienta que permite elaborar documentos de presupuesto y descargarlos en formato PDF. El uso de la herramienta es libre y no requiere registro. Determinadas funciones están sujetas a pago según se detalla en las <a href="/condiciones/">condiciones de contratación</a>.</p>
 
 <h2>Condiciones de uso</h2>
 <p>El acceso a este sitio web es gratuito y su uso implica la aceptación de este aviso legal. El usuario se compromete a utilizar la herramienta conforme a la ley y a no emplearla para elaborar documentos con finalidad fraudulenta o para suplantar la identidad de terceros.</p>
@@ -60,12 +60,12 @@ export const LEGALES = [
   },
   {
     slug: "privacidad",
-    titulo: "Política de privacidad | Presu",
+    titulo: "Política de privacidad | Plomada",
     h1: "Política de privacidad",
     descripcion:
-      "Qué datos trata Presu, dónde se guardan los presupuestos y cuáles son tus derechos.",
+      "Qué datos trata Plomada, dónde se guardan los presupuestos y cuáles son tus derechos.",
     cuerpo: `
-<p>Esta política explica cómo se tratan los datos personales en Presu. La versión corta: <strong>los presupuestos que elaboras no salen de tu navegador, salvo cuando compras la descarga sin marca de agua</strong>, que se genera en nuestro servidor y para eso necesita el contenido del documento.</p>
+<p>Esta política explica cómo se tratan los datos personales en Plomada. La versión corta: <strong>los presupuestos que elaboras no salen de tu navegador, salvo cuando compras la descarga sin marca de agua</strong>, que se genera en nuestro servidor y para eso necesita el contenido del documento.</p>
 
 <h2>Responsable del tratamiento</h2>
 <ul>
@@ -103,12 +103,12 @@ export const LEGALES = [
   },
   {
     slug: "condiciones",
-    titulo: "Condiciones de contratación | Presu",
+    titulo: "Condiciones de contratación | Plomada",
     h1: "Condiciones de contratación",
     descripcion:
-      "Precios, forma de pago, entrega y derecho de desistimiento de los productos de pago de Presu.",
+      "Precios, forma de pago, entrega y derecho de desistimiento de los productos de pago de Plomada.",
     cuerpo: `
-<p>Estas condiciones regulan la contratación de los productos de pago de Presu. Elaborar y previsualizar presupuestos es gratuito y no requiere aceptar estas condiciones.</p>
+<p>Estas condiciones regulan la contratación de los productos de pago de Plomada. Elaborar y previsualizar presupuestos es gratuito y no requiere aceptar estas condiciones.</p>
 
 <h2>Qué se contrata</h2>
 <p>La herramienta permite descargar gratuitamente el presupuesto en PDF con una marca de agua. Los productos de pago consisten en la supresión de esa marca de agua:</p>

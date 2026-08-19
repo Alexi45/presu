@@ -12,27 +12,21 @@ import { ErrorValidacion, leerCuerpo } from "./_validar.mjs";
  * presupuesto concreto.
  */
 
-/**
- * Lo que ve el cliente en el extracto del banco.
- *
- * La primera causa de disputas de tarjeta en productos baratos es que el
- * comprador no reconoce el cargo. Cada disputa cuesta 15 € además del importe,
- * o sea el doble de lo que vale el producto. El prefijo lo pone la cuenta de
- * Stripe; esto es el sufijo que identifica la app concreta.
- */
-const DESCRIPTOR = "PRESU";
-
+// El descriptor del extracto lo pone entero la cuenta de Stripe, que ya se
+// llama PLOMADA igual que el producto. Un sufijo aquí solo conseguiría que el
+// cliente viera "PLOMADA* PLOMADA". Cuando haya una segunda app bajo la misma
+// cuenta, esa sí querrá su propio sufijo.
 const PLANES = {
   unico: {
     modo: "payment",
     importe: 700,
-    nombre: "Presu · presupuesto sin marca de agua",
+    nombre: "Plomada · presupuesto sin marca de agua",
     descripcion: "Descarga este presupuesto en PDF sin marca de agua, las veces que quieras.",
   },
   suscripcion: {
     modo: "subscription",
     importe: 1900,
-    nombre: "Presu · presupuestos ilimitados",
+    nombre: "Plomada · presupuestos ilimitados",
     descripcion: "Todos tus presupuestos sin marca de agua mientras la suscripción esté activa.",
   },
 };
@@ -123,9 +117,6 @@ export default async (peticion) => {
       // tú, así que aquí se pide lo mismo. Si la cuenta no permite cambiarlo,
       // la degradación de abajo lo quita y la venta sigue adelante.
       managed_payments: { enabled: false },
-      ...(elegido.modo === "payment"
-        ? { payment_intent_data: { statement_descriptor_suffix: DESCRIPTOR } }
-        : {}),
       custom_text: {
         submit: {
           message:
