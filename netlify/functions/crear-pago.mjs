@@ -43,8 +43,14 @@ const PLANES = {
  * Ni el aviso de la pantalla de pago ni el descriptor del extracto valen tanto
  * como una venta. Si Stripe rechaza alguno por cómo está configurada la cuenta,
  * se reintenta sin él en vez de dejar al cliente con un error.
+ *
+ * Aquí NO se usa clave de idempotencia, y es a propósito. Crear una sesión no
+ * mueve dinero: si se crean dos, el cliente paga en una y la otra caduca sola.
+ * A cambio, una clave mal elegida rompe la venta entera —Stripe rechaza reusar
+ * una clave con parámetros distintos—, que es exactamente lo que pasó al
+ * intentar añadirla. El cobro en sí ya es idempotente del lado de Stripe.
  */
-async function crearSesion(stripe, parametros, idempotencyKey) {
+async function crearSesion(stripe, parametros) {
   const degradaciones = [
     // 1. Tal cual: con el aviso legal y el descriptor del extracto.
     (p) => p,
@@ -56,11 +62,9 @@ async function crearSesion(stripe, parametros, idempotencyKey) {
   ];
 
   let ultimoError;
-  for (const [indice, degradar] of degradaciones.entries()) {
+  for (const degradar of degradaciones) {
     try {
-      return await stripe.checkout.sessions.create(degradar(parametros), {
-        idempotencyKey: indice === 0 ? idempotencyKey : `${idempotencyKey}-${indice}`,
-      });
+      return await stripe.checkout.sessions.create(degradar(parametros));
     } catch (error) {
       // Un problema de parámetros se puede reintentar sin ellos. Una clave mala
       // o una tarjeta rechazada, no: eso sube tal cual.
@@ -131,7 +135,7 @@ export default async (peticion) => {
       },
       success_url: `${sitio}/?sesion={CHECKOUT_SESSION_ID}`,
       cancel_url: `${sitio}/?pago=cancelado`,
-    }, `${plan}-${presupuestoId}-${Math.floor(Date.now() / 60000)}`);
+    });
 
     return Response.json({ url: sesion.url });
   } catch (error) {
