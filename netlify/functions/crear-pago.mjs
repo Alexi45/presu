@@ -13,20 +13,20 @@ import { ErrorValidacion, leerCuerpo } from "./_validar.mjs";
  */
 
 // El descriptor del extracto lo pone entero la cuenta de Stripe, que ya se
-// llama PLOMADA igual que el producto. Un sufijo aquí solo conseguiría que el
-// cliente viera "PLOMADA* PLOMADA". Cuando haya una segunda app bajo la misma
+// llama PRESUPPRO igual que el producto. Un sufijo aquí solo conseguiría que el
+// cliente viera "PRESUPPRO* PRESUPPRO". Cuando haya una segunda app bajo la misma
 // cuenta, esa sí querrá su propio sufijo.
 const PLANES = {
   unico: {
     modo: "payment",
     importe: 700,
-    nombre: "Plomada · presupuesto sin marca de agua",
+    nombre: "PresupPRO · presupuesto sin marca de agua",
     descripcion: "Descarga este presupuesto en PDF sin marca de agua, las veces que quieras.",
   },
   suscripcion: {
     modo: "subscription",
     importe: 1900,
-    nombre: "Plomada · presupuestos ilimitados",
+    nombre: "PresupPRO · presupuestos ilimitados",
     descripcion: "Todos tus presupuestos sin marca de agua mientras la suscripción esté activa.",
   },
 };

@@ -5,7 +5,7 @@
  */
 
 export const SITIO = {
-  nombre: "Plomada",
+  nombre: "PresupPRO",
   /**
    * Solo se usa como valor por defecto del generador de páginas estáticas.
    * En producción manda la variable de entorno SITE_URL, y dentro de la
@@ -50,7 +50,7 @@ export const CLAVES = [
   {
     titulo: "IVA desglosado por tipo",
     texto:
-      "Si mezclas partidas al 21 % y al 10 %, el desglose tiene que aparecer por separado. Plomada lo agrupa y lo calcula solo.",
+      "Si mezclas partidas al 21 % y al 10 %, el desglose tiene que aparecer por separado. PresupPRO lo agrupa y lo calcula solo.",
   },
   {
     titulo: "Fecha de validez",
@@ -65,7 +65,7 @@ export const CLAVES = [
   {
     titulo: "Espacio para la firma",
     texto:
-      "Un presupuesto firmado es la mejor prueba de lo acordado. Todos los que genera Plomada llevan el bloque de aceptación al final.",
+      "Un presupuesto firmado es la mejor prueba de lo acordado. Todos los que genera PresupPRO llevan el bloque de aceptación al final.",
   },
 ];
 
@@ -88,7 +88,7 @@ export const FAQ = [
   {
     pregunta: "¿Un presupuesto es lo mismo que una factura?",
     respuesta:
-      "No. El presupuesto es una oferta de precio y no tiene efectos fiscales; la factura documenta una operación ya realizada y está sujeta a la normativa de facturación. Plomada genera presupuestos, no facturas.",
+      "No. El presupuesto es una oferta de precio y no tiene efectos fiscales; la factura documenta una operación ya realizada y está sujeta a la normativa de facturación. PresupPRO genera presupuestos, no facturas.",
   },
   {
     pregunta: "¿Puedo poner mi logotipo?",

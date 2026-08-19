@@ -2,9 +2,10 @@ import { presupuestoVacio } from "./types";
 import type { Cliente, Emisor, Presupuesto } from "./types";
 
 /**
- * Las claves conservan el prefijo `presu` de cuando el producto se llamaba así.
- * Renombrarlas dejaría sin presupuestos a todo el que ya hubiera usado la web,
- * y el marcador `formato: "presu"` haría ilegibles las copias ya exportadas.
+ * Las claves quedaron congeladas en `presu.*` en la primera versión y ahí se
+ * quedan pase lo que pase con el nombre comercial. Renombrarlas dejaría sin
+ * presupuestos a todo el que ya hubiera usado la web, y cambiar el marcador
+ * `formato: "presu"` haría ilegibles las copias de seguridad ya exportadas.
  * El nombre de un producto cambia; los datos de la gente no se tiran por eso.
  */
 const CLAVE_DOCUMENTOS = "presu.documentos.v2";
@@ -215,11 +216,11 @@ export function importarCopia(json: string): ResultadoImportacion {
   try {
     copia = JSON.parse(json) as Partial<Copia>;
   } catch {
-    throw new Error("El archivo no es una copia de Plomada válida.");
+    throw new Error("El archivo no es una copia de PresupPRO válida.");
   }
 
   if (copia.formato !== "presu" || !Array.isArray(copia.presupuestos)) {
-    throw new Error("El archivo no es una copia de Plomada válida.");
+    throw new Error("El archivo no es una copia de PresupPRO válida.");
   }
 
   const actuales = new Map(cargarDocumentos().map((d) => [d.id, d]));

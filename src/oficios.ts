@@ -55,7 +55,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Reformas",
     profesional: "reformista",
     emoji: "🧱",
-    titulo: "Modelo de presupuesto de reforma en PDF | Plomada",
+    titulo: "Modelo de presupuesto de reforma en PDF | PresupPRO",
     descripcion:
       "Haz un presupuesto de reforma con partidas, medición, IVA desglosado y firma de aceptación. Se rellena en dos minutos y se descarga en PDF.",
     h1: "Presupuesto de reforma",
@@ -96,7 +96,7 @@ export const OFICIOS: Oficio[] = [
       {
         pregunta: "¿Debe firmar el cliente el presupuesto?",
         respuesta:
-          "No es obligatorio, pero un presupuesto aceptado por escrito es la mejor prueba de lo acordado si algo se discute después. Todos los presupuestos que genera Plomada llevan un bloque de firma y fecha al final.",
+          "No es obligatorio, pero un presupuesto aceptado por escrito es la mejor prueba de lo acordado si algo se discute después. Todos los presupuestos que genera PresupPRO llevan un bloque de firma y fecha al final.",
       },
       {
         pregunta: "¿Puedo cobrar por hacer el presupuesto?",
@@ -167,7 +167,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Fontanería",
     profesional: "fontanero",
     emoji: "🔧",
-    titulo: "Presupuesto de fontanería en PDF, gratis | Plomada",
+    titulo: "Presupuesto de fontanería en PDF, gratis | PresupPRO",
     descripcion:
       "Modelo de presupuesto de fontanería con mano de obra, materiales y desplazamiento. Rellénalo y descárgalo en PDF con tu logo.",
     h1: "Presupuesto de fontanería",
@@ -261,7 +261,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Electricidad",
     profesional: "electricista",
     emoji: "⚡",
-    titulo: "Presupuesto de electricista en PDF | Plomada",
+    titulo: "Presupuesto de electricista en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto para instalaciones eléctricas: puntos de luz, cuadro, mano de obra y boletín. Descarga en PDF con tu logo.",
     h1: "Presupuesto de electricista",
@@ -356,7 +356,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Pintura",
     profesional: "pintor",
     emoji: "🎨",
-    titulo: "Presupuesto de pintura por m² en PDF | Plomada",
+    titulo: "Presupuesto de pintura por m² en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de pintura con metros cuadrados, manos de pintura, preparación y protección. Descárgalo en PDF.",
     h1: "Presupuesto de pintura",
@@ -450,7 +450,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Jardinería",
     profesional: "jardinero",
     emoji: "🌿",
-    titulo: "Presupuesto de jardinería en PDF | Plomada",
+    titulo: "Presupuesto de jardinería en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de jardinería para podas, mantenimiento y diseño de jardín, con opción de cuota mensual. Descarga en PDF.",
     h1: "Presupuesto de jardinería",
@@ -545,7 +545,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Carpintería",
     profesional: "carpintero",
     emoji: "🪵",
-    titulo: "Presupuesto de carpintería a medida en PDF | Plomada",
+    titulo: "Presupuesto de carpintería a medida en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de carpintería y muebles a medida con materiales, herrajes, montaje y anticipo. Descarga en PDF.",
     h1: "Presupuesto de carpintería",
@@ -640,7 +640,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Albañilería",
     profesional: "albañil",
     emoji: "🧱",
-    titulo: "Presupuesto de albañilería en PDF | Plomada",
+    titulo: "Presupuesto de albañilería en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de albañilería con mediciones, material, andamios y retirada de escombro. Descárgalo en PDF con tu logo.",
     h1: "Presupuesto de albañilería",
@@ -736,7 +736,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Climatización",
     profesional: "instalador",
     emoji: "❄️",
-    titulo: "Presupuesto de aire acondicionado en PDF | Plomada",
+    titulo: "Presupuesto de aire acondicionado en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de climatización: equipo, instalación, material frigorífico y puesta en marcha. Descárgalo en PDF.",
     h1: "Presupuesto de climatización",
@@ -831,7 +831,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Cerrajería",
     profesional: "cerrajero",
     emoji: "🔐",
-    titulo: "Presupuesto de cerrajería en PDF | Plomada",
+    titulo: "Presupuesto de cerrajería en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de cerrajería para puertas, rejas y cierres, con material, mano de obra y desplazamiento. Descárgalo en PDF.",
     h1: "Presupuesto de cerrajería",
@@ -927,7 +927,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Mudanzas",
     profesional: "transportista",
     emoji: "📦",
-    titulo: "Presupuesto de mudanza en PDF | Plomada",
+    titulo: "Presupuesto de mudanza en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de mudanza con embalaje, portes, mano de obra y seguro. Rellénalo y descárgalo en PDF.",
     h1: "Presupuesto de mudanza",
@@ -1022,7 +1022,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Limpieza",
     profesional: "profesional de la limpieza",
     emoji: "🧽",
-    titulo: "Presupuesto de limpieza en PDF | Plomada",
+    titulo: "Presupuesto de limpieza en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de limpieza para fin de obra, comunidades y oficinas, con cuota mensual o servicio puntual. Descárgalo en PDF.",
     h1: "Presupuesto de limpieza",
@@ -1117,7 +1117,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Fotografía",
     profesional: "fotógrafo",
     emoji: "📷",
-    titulo: "Presupuesto de fotografía en PDF | Plomada",
+    titulo: "Presupuesto de fotografía en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto para fotógrafos: sesión, edición, entrega y cesión de derechos, con retención de IRPF. Descarga en PDF.",
     h1: "Presupuesto de fotografía",
@@ -1212,7 +1212,7 @@ export const OFICIOS: Oficio[] = [
     nombre: "Diseño web",
     profesional: "diseñador",
     emoji: "💻",
-    titulo: "Presupuesto de diseño web en PDF | Plomada",
+    titulo: "Presupuesto de diseño web en PDF | PresupPRO",
     descripcion:
       "Modelo de presupuesto de diseño y desarrollo web con fases, rondas de revisión, mantenimiento y retención de IRPF. Descarga en PDF.",
     h1: "Presupuesto de diseño web",

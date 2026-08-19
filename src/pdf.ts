@@ -18,7 +18,7 @@ const MARGEN = 18;
 const DERECHA = ANCHO - MARGEN;
 
 /** Nombre de la marca. En un solo sitio: al renombrar el producto solo se toca aquí. */
-const NOMBRE = "Plomada";
+const NOMBRE = "PresupPRO";
 const TAMANO_MARCA = 46;
 
 const COL_CANTIDAD = 138;

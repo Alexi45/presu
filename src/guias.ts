@@ -40,7 +40,7 @@ const AVISO_FISCAL =
 export const GUIAS: Guia[] = [
   {
     slug: "iva-reformas-10-o-21",
-    titulo: "IVA en reformas: cuándo es el 10 % y cuándo el 21 % | Plomada",
+    titulo: "IVA en reformas: cuándo es el 10 % y cuándo el 21 % | PresupPRO",
     descripcion:
       "Los tres requisitos para aplicar el IVA reducido del 10 % en obras de reforma en viviendas, y qué pasa con el límite del 40 % en materiales.",
     h1: "IVA en reformas: 10 % o 21 %",
@@ -120,7 +120,7 @@ export const GUIAS: Guia[] = [
   },
   {
     slug: "retencion-irpf-autonomos",
-    titulo: "Retención de IRPF: cuándo se aplica y cuánto | Plomada",
+    titulo: "Retención de IRPF: cuándo se aplica y cuánto | PresupPRO",
     descripcion:
       "Cuándo lleva retención de IRPF tu factura, la diferencia entre el 15 % y el 7 % de nuevo autónomo, y por qué a un cliente particular nunca se le retiene.",
     h1: "Retención de IRPF para autónomos",
@@ -199,7 +199,7 @@ export const GUIAS: Guia[] = [
   },
   {
     slug: "como-hacer-un-presupuesto",
-    titulo: "Cómo hacer un presupuesto profesional paso a paso | Plomada",
+    titulo: "Cómo hacer un presupuesto profesional paso a paso | PresupPRO",
     descripcion:
       "Qué datos lleva un presupuesto, cómo describir las partidas para que no haya discusiones, y qué cláusulas evitan los problemas más habituales.",
     h1: "Cómo hacer un presupuesto",
@@ -255,7 +255,7 @@ export const GUIAS: Guia[] = [
         titulo: "Mándalo rápido",
         parrafos: [
           "En trabajos de oficio, la velocidad de respuesta compite con el precio. El cliente que pide tres presupuestos suele quedarse con el primero que llega bien hecho, porque el que responde rápido transmite que trabajará igual.",
-          "Es la razón de que exista Plomada: si el presupuesto se puede terminar y enviar desde el móvil antes de salir de casa del cliente, el trabajo ya es casi tuyo.",
+          "Es la razón de que exista PresupPRO: si el presupuesto se puede terminar y enviar desde el móvil antes de salir de casa del cliente, el trabajo ya es casi tuyo.",
         ],
       },
     ],
@@ -278,7 +278,7 @@ export const GUIAS: Guia[] = [
       {
         pregunta: "¿Es lo mismo un presupuesto que una factura?",
         respuesta:
-          "No. El presupuesto es una oferta de precio y no tiene efectos fiscales. La factura documenta una operación ya realizada y está sujeta a la normativa de facturación. Plomada genera presupuestos, no facturas.",
+          "No. El presupuesto es una oferta de precio y no tiene efectos fiscales. La factura documenta una operación ya realizada y está sujeta a la normativa de facturación. PresupPRO genera presupuestos, no facturas.",
       },
     ],
     oficios: ["reformas", "fontaneria", "electricidad", "pintura", "carpinteria"],

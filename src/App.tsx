@@ -334,19 +334,8 @@ export default function App() {
     <div className="app">
       <header className="barra">
         <div className="marca">
-          <span className="marca__punto" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="15" height="15">
-              <path
-                d="M12 3v8"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                fill="none"
-              />
-              <path d="M12 9.5l4 6-4 6-4-6z" fill="currentColor" />
-            </svg>
-          </span>
-          <span className="marca__texto">Plomada</span>
+          <span className="marca__punto" aria-hidden="true">€</span>
+          <span className="marca__texto">PresupPRO</span>
         </div>
         <span className="barra__estado">{estado}</span>
         <div className="barra__acciones">
