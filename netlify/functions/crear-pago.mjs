@@ -38,25 +38,37 @@ const PLANES = {
 };
 
 /**
- * Crea la sesión y, si Stripe se queja del descriptor del extracto, lo repite
- * sin él.
+ * Crea la sesión, renunciando a los adornos si la cuenta no los admite.
  *
- * El sufijo del descriptor solo se admite si la cuenta tiene configurado su
- * descriptor por defecto. Que falte eso es un detalle de configuración, y un
- * detalle de configuración no puede impedir una venta.
+ * Ni el aviso de la pantalla de pago ni el descriptor del extracto valen tanto
+ * como una venta. Si Stripe rechaza alguno por cómo está configurada la cuenta,
+ * se reintenta sin él en vez de dejar al cliente con un error.
  */
 async function crearSesion(stripe, parametros, idempotencyKey) {
-  try {
-    return await stripe.checkout.sessions.create(parametros, { idempotencyKey });
-  } catch (error) {
-    const esDelDescriptor = String(error?.raw?.param ?? error?.param ?? "").includes(
-      "statement_descriptor",
-    );
-    if (!esDelDescriptor) throw error;
+  const degradaciones = [
+    // 1. Tal cual: con el aviso legal y el descriptor del extracto.
+    (p) => p,
+    // 2. Sin el aviso. Las cuentas con Managed Payments (Stripe como vendedor)
+    //    no admiten custom_text ni que se desactive desde aquí.
+    ({ custom_text: _, managed_payments: __, ...resto }) => resto,
+    // 3. Sin el descriptor del extracto, que exige tener uno por defecto.
+    ({ custom_text: _, managed_payments: __, payment_intent_data: ___, ...resto }) => resto,
+  ];
 
-    const { payment_intent_data: _sinDescriptor, ...resto } = parametros;
-    return stripe.checkout.sessions.create(resto, { idempotencyKey: `${idempotencyKey}-sd` });
+  let ultimoError;
+  for (const [indice, degradar] of degradaciones.entries()) {
+    try {
+      return await stripe.checkout.sessions.create(degradar(parametros), {
+        idempotencyKey: indice === 0 ? idempotencyKey : `${idempotencyKey}-${indice}`,
+      });
+    } catch (error) {
+      // Un problema de parámetros se puede reintentar sin ellos. Una clave mala
+      // o una tarjeta rechazada, no: eso sube tal cual.
+      if (error?.type !== "StripeInvalidRequestError") throw error;
+      ultimoError = error;
+    }
   }
+  throw ultimoError;
 }
 
 export default async (peticion) => {
@@ -102,6 +114,11 @@ export default async (peticion) => {
       ],
       locale: "es",
       metadata: { presupuestoId: String(presupuestoId ?? "").slice(0, 60), plan },
+      // Sin esto, Stripe figura como vendedor y quien responde ante el cliente
+      // es Stripe, no tú. Las condiciones publicadas dicen que el vendedor eres
+      // tú, así que aquí se pide lo mismo. Si la cuenta no permite cambiarlo,
+      // la degradación de abajo lo quita y la venta sigue adelante.
+      managed_payments: { enabled: false },
       ...(elegido.modo === "payment"
         ? { payment_intent_data: { statement_descriptor_suffix: DESCRIPTOR } }
         : {}),
